@@ -1,4 +1,4 @@
-/* 試作品の仮データ。場面と場所の対応・説明・出典は確認前のもの（実データは出典を1件ずつ確かめて作る） */
+/* 試作品の仮データ（場面の説明は記憶から書いた仮の文。予告編のどこに出るかは未確認）。場面と場所の対応・説明・出典は確認前のもの（実データは出典を1件ずつ確かめて作る） */
 const PHOTOS = {
  "shinjuku_day": {
   "file": "img/shinjuku_day.jpg",
@@ -400,11 +400,18 @@ const SCENES = [
    "en": "A first morning in Tokyo"
   },
   "photo": "shinjuku_day",
-  "media": "quote",
   "keywords": "ビル 朝 東京 新宿",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "入れ替わった三葉が、瀧の部屋の窓から初めて東京の街を見下ろす朝。高層ビルが朝日を受けて並ぶ景色に、山あいの町で育った三葉は思わず息をのみます。",
+   "en": "Mitsuha, now in Taki's body, looks out over Tokyo for the first time. The towers in the morning light leave the girl from a mountain town speechless."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -417,11 +424,18 @@ const SCENES = [
    "en": "The café on the date"
   },
   "photo": "nact",
-  "media": "quote",
   "keywords": "カフェ 美術館 デート 六本木",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "瀧が、バイト先の先輩・奥寺さんと出かけた日に立ち寄るカフェ。逆さの円すいのような形の上にある席で、二人はぎこちない時間を過ごします。",
+   "en": "The café Taki visits on his day out with Okudera, his senior at work. They sit on top of a striking inverted cone, and the date does not go smoothly."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -434,11 +448,18 @@ const SCENES = [
    "en": "Shinjuku lights at night"
   },
   "photo": "shinjuku_night",
-  "media": "embed",
   "keywords": "夜 ビル 新宿",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "夜の西新宿。ビルの窓の灯りが重なる中を、瀧が一人で歩いて帰る場面です。三葉とのつながりが切れたあとの、静かな東京が描かれます。",
+   "en": "Taki walks home alone through Nishi-Shinjuku at night, the office windows still lit. A quiet Tokyo after his connection with Mitsuha is lost."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -451,11 +472,18 @@ const SCENES = [
    "en": "The sky from the footbridge"
   },
   "photo": null,
-  "media": "quote",
   "keywords": "歩道橋 空 信濃町",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "信濃町駅前の歩道橋。瀧が空を見上げる場面で、背後にドコモタワーが見えます。何度も出てくる、物語の大事な目印の景色です。",
+   "en": "The footbridge in front of Shinanomachi Station. Taki looks up at the sky with the Docomo Tower behind him, a view the film returns to again and again."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -468,11 +496,18 @@ const SCENES = [
    "en": "Arriving at a station in Hida"
   },
   "photo": null,
-  "media": "embed",
   "keywords": "駅 飛騨 古川 電車",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "瀧が、記憶をたよりに描いた風景画を手に飛騨へ向かう場面。小さな駅に降り立ち、町の人に絵を見せて場所を尋ね歩きます。",
+   "en": "Taki travels to Hida with landscape sketches drawn from memory. He gets off at a small station and shows the sketches to people, asking where it is."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -485,11 +520,18 @@ const SCENES = [
    "en": "Looking up the lost town in the library"
   },
   "photo": null,
-  "media": "quote",
   "keywords": "図書館 飛騨 調べる",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "たどり着いた図書館で、瀧は糸守町の記録を調べ、町に何が起きたかを知ります。物語が大きく動く場面です。",
+   "en": "At the library, Taki searches the records of Itomori and learns what happened to the town. The story turns here."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -502,11 +544,18 @@ const SCENES = [
    "en": "To the shrine on the edge of town"
   },
   "photo": null,
-  "media": "quote",
   "keywords": "神社 飛騨 石段",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "町はずれの神社を、三葉と家族が訪れる場面のもとになったと言われる場所です。",
+   "en": "A shrine on the edge of town, said to be the model for the shrine Mitsuha and her family visit."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -519,11 +568,18 @@ const SCENES = [
    "en": "A lake that recalls Itomori"
   },
   "photo": null,
-  "media": "quote",
   "keywords": "湖 諏訪 糸守",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "山に囲まれた湖。糸守湖の景色の手がかりになったと言われています。",
+   "en": "A lake ringed by mountains, said to have inspired the view of Lake Itomori."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  },
  {
@@ -536,11 +592,18 @@ const SCENES = [
    "en": "Passing on the stairs"
   },
   "photo": null,
-  "media": "quote",
   "keywords": "階段 神社 ラスト 須賀 四谷",
   "desc": {
-   "ja": "（場面の説明を自分の言葉で書く所。どの場面か・どの向きから見た景色か・場面の前後に何があるか。試作品のため仮の文です）",
-   "en": "(Here we describe the scene in our own words: which moment it is, which way the view faces, and what happens around it. Sample text.)"
+   "ja": "物語の最後、大人になった二人が階段ですれ違い、振り返る場面。赤い手すりのある神社の階段です。",
+   "en": "Near the end, the two, now adults, pass each other on a flight of stairs and turn around. The shrine stairs with red railings."
+  },
+  "video": {
+   "id": "k4xGqY5IDBE",
+   "start": null,
+   "channel": {
+    "ja": "東宝MOVIEチャンネル",
+    "en": "Toho Movie Channel"
+   }
   }
  }
 ];

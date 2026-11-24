@@ -50,6 +50,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid 
 .top-bar nav a { font-size: 13px; text-decoration: none; padding: 4px 10px; border-radius: 999px; opacity: .9; white-space: nowrap; }
 .top-bar nav a.on { background: rgba(255,255,255,.16); opacity: 1; }
 .lang { border: 1px solid rgba(255,255,255,.5); }
+@media (max-width: 400px) { .top-bar .wrap { gap: 6px; } .top-bar nav { gap: 0; } .top-bar nav a { padding: 4px 7px; font-size: 12.5px; } .logo { font-size: 18px; } }
 .unofficial { font-size: 11px; color: rgba(255,255,255,.7); text-align: center; padding: 0 8px 4px; }
 
 /* 作品の扉（トップ） */
@@ -119,8 +120,15 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid 
 .frame .box { aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; position: relative; background: #dcdbe3; }
 .frame .box img { width: 100%; height: 100%; object-fit: cover; }
 .frame .none { height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 13px; }
-.quote .box { border: 2px solid var(--ink); background: repeating-linear-gradient(135deg, #e4e4ec 0 12px, #eeeef4 12px 24px); display: flex; align-items: center; justify-content: center; text-align: center; color: var(--ink-soft); font-size: 13px; padding: 12px 18px; }
-.quote .tag { position: absolute; left: 8px; top: 8px; background: var(--ink); color: #fff; font-size: 11px; padding: 0 8px; border-radius: 3px; }
+.story { border-radius: 10px; background: linear-gradient(160deg, #1c2550, var(--night)); color: #fff; padding: 20px 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+.story p { margin: 0; font-family: var(--f-display); font-size: 17px; line-height: 1.9; }
+.story .vid { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.story button { background: #fff; color: var(--ink); border: none; border-radius: 999px; padding: 10px 18px; font-weight: 700; min-height: 44px; }
+.story small { font-size: 12px; opacity: .85; }
+.story a { color: #fff; }
+.player { aspect-ratio: 16 / 9; width: 100%; border: 0; border-radius: 8px; background: #000; }
+.compare .frame { display: flex; flex-direction: column; }
+.compare .frame > .story { flex: 1; }
 figcaption { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
 .embed { aspect-ratio: 16 / 9; border-radius: 10px; background: linear-gradient(160deg, #1c2550, var(--night)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 14px; }
 .embed button { background: #fff; color: var(--ink); border: none; border-radius: 999px; padding: 10px 18px; font-weight: 700; }
@@ -196,7 +204,7 @@ footer .credits { margin-top: 10px; font-size: 11px; color: rgba(255,255,255,.55
 const T = {
   ja: {
     proto: "試作品：場面と場所の対応・説明は確認前の仮のものです",
-    proto2: "写真は自由素材（CC0・パブリックドメイン）。場面の画像の枠は空けてあります",
+    proto2: "写真は自由素材（CC0・パブリックドメイン）。場面は文章と公式の予告編で見せます（場面の画像は載せません）",
     unofficial: "非公式のファンサイトです。作品の公式とは関係ありません。",
     scenes: "場面", map: "地図", manners: "マナー", langTo: "EN",
     title: "君の名は。", eyebrow: "Your Name. ／ 2016",
@@ -206,11 +214,9 @@ const T = {
     beforeVisit: "住宅地の中の場所もあります。行く前に", mannerLink: "巡礼のマナー", mannerTail: "をどうぞ。",
     noMatch: "条件に合う場面がありません。", see: "場面を見る →", noPhoto: "今の写真はまだありません",
     scene: "SCENE", chapter: "CHAPTER",
-    theScene: "THE SCENE ／ 場面", today: "TODAY ／ 今の様子", quote: "引用",
-    quotePh: "ここに場面の画像が入ります（引用：1枚・長辺640px以下・手を加えない）",
-    copyright: "『君の名は。』より ©（公式の権利表記）",
-    play: "▶ 公式の予告編でこの場面を見る（1:23 から）", embedNote: "押すと YouTube（公式チャンネル）から読み込みます",
-    embedDone: "（試作品のため動画は読み込みません）",
+    theScene: "THE SCENE ／ どんな場面か", today: "TODAY ／ 今の様子",
+    play: "▶ 公式の予告編を見る", playFrom: "▶ 公式の予告編でこの場面を見る（{t} から）",
+    embedNote: "押すと YouTube（{c}）から読み込みます", openYt: "YouTube で開く",
     noToday: "今の写真はまだありません", photoBy: "写真",
     about: "この場面について", place: "この場面の場所",
     address: "住所", stand: "立ち位置", route: "経路を開く", sv: "ストリートビューで見る",
@@ -224,7 +230,7 @@ const T = {
   },
   en: {
     proto: "Prototype: scene–place pairs and descriptions are unverified samples",
-    proto2: "Photos are CC0 / public domain. Scene image frames are left empty",
+    proto2: "Photos are CC0 / public domain. Scenes are shown with text and the official trailer (no scene images)",
     unofficial: "Unofficial fan site. Not affiliated with the official works.",
     scenes: "Scenes", map: "Map", manners: "Etiquette", langTo: "日本語",
     title: "Your Name.", eyebrow: "君の名は。 ／ 2016",
@@ -234,11 +240,9 @@ const T = {
     beforeVisit: "Some places are in residential areas. Before you go, read the", mannerLink: "pilgrimage etiquette", mannerTail: ".",
     noMatch: "No scenes match.", see: "See the scene →", noPhoto: "No photo yet",
     scene: "SCENE", chapter: "CHAPTER",
-    theScene: "THE SCENE", today: "TODAY", quote: "Quote",
-    quotePh: "The scene image goes here (quotation: one image, max 640px, unedited)",
-    copyright: "From \"Your Name.\" © (official credit)",
-    play: "▶ Watch this scene in the official trailer (from 1:23)", embedNote: "Tapping loads YouTube (official channel)",
-    embedDone: "(The prototype does not load the video.)",
+    theScene: "THE SCENE", today: "TODAY",
+    play: "▶ Watch the official trailer", playFrom: "▶ Watch this scene in the official trailer (from {t})",
+    embedNote: "Tapping loads YouTube ({c})", openYt: "Open on YouTube",
     noToday: "No photo yet", photoBy: "Photo",
     about: "About this scene", place: "Where it is",
     address: "Address", stand: "Where to stand", route: "Directions", sv: "Street View",
@@ -388,9 +392,14 @@ function scenePage(s) {
   const prev = SCENES[i - 1], next = SCENES[i + 1];
   const ch = CHAPTERS.find((c) => c.id === s.chapter);
   const ph = s.photo && PHOTOS[s.photo];
-  const sceneFrame = s.media === "embed"
-    ? `<figure class="frame"><div class="lbl">${t("theScene")}</div><div class="embed" id="embedBox"><button type="button" id="playBtn">${t("play")}</button><small>${t("embedNote")}</small></div></figure>`
-    : `<figure class="frame quote"><div class="lbl">${t("theScene")}</div><div class="box"><span class="tag">${t("quote")}</span>${t("quotePh")}</div><figcaption>${t("copyright")}</figcaption></figure>`;
+  const v = s.video;
+  const vt = v && v.start != null ? `${Math.floor(v.start / 60)}:${String(v.start % 60).padStart(2, "0")}` : null;
+  const ytUrl = v ? `https://www.youtube.com/watch?v=${v.id}${v.start ? "&t=" + v.start + "s" : ""}` : "";
+  const sceneFrame = `<figure class="frame"><div class="lbl">${t("theScene")}</div><div class="story" id="storyBox">
+      <p>${esc(L_(s.desc))}</p>
+      ${v ? `<div class="vid" id="vid"><button type="button" id="playBtn">${vt ? t("playFrom").replace("{t}", vt) : t("play")}</button>
+        <small>${t("embedNote").replace("{c}", esc(L_(v.channel)))}・<a href="${ytUrl}" target="_blank" rel="noopener noreferrer">${t("openYt")} ↗</a></small></div>` : ""}
+    </div></figure>`;
   const todayFrame = `<figure class="frame"><div class="lbl">${t("today")}</div><div class="box">${ph ? `<img src="${ph.file}" alt="${esc(L_(p.name))}">` : `<div class="none">${t("noToday")}</div>`}</div>
     ${ph ? `<figcaption>${t("photoBy")}: ${esc(ph.creator || ph.source)}（${esc(ph.license)}・<a href="${esc(ph.page)}" target="_blank" rel="noopener noreferrer">${esc(ph.source)} ↗</a>）</figcaption>` : ""}</figure>`;
   const same = SCENES.filter((x) => x.place === s.place && x !== s);
@@ -404,9 +413,7 @@ function scenePage(s) {
     <div class="compare">${sceneFrame}${todayFrame}</div>
     <div class="layout">
       <div>
-        <h2 class="sec-h" style="margin-top:0">${t("about")}</h2>
-        <div class="prose"><p>${esc(L_(s.desc))}</p></div>
-        <h2 class="sec-h">${t("sources")}</h2>
+        <h2 class="sec-h" style="margin-top:0">${t("sources")}</h2>
         <p class="small">${badge(p.cert)} ${CERT[p.cert].long[lang]}</p>
         <ul class="src">${p.sources.map((x) => `<li><a href="#" onclick="return false">${esc(L_(x))} ↗</a>（2026-11-30 ${t("checked")}）</li>`).join("")}</ul>
         ${same.length ? `<h2 class="sec-h">${t("sameplace")}</h2><div class="grid">${same.map(card).join("")}</div>` : ""}
@@ -449,7 +456,16 @@ function pinIcon(label, here) {
 }
 function afterScene(s) {
   const b = document.getElementById("playBtn");
-  if (b) b.addEventListener("click", () => { document.getElementById("embedBox").innerHTML = `<small>${t("embedDone")}</small>`; });
+  if (b) b.addEventListener("click", () => {
+    const v = s.video;
+    const f = document.createElement("iframe");
+    f.className = "player";
+    f.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.id)}?autoplay=1&rel=0${v.start ? "&start=" + v.start : ""}`;
+    f.title = L_(v.channel);
+    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    f.referrerPolicy = "strict-origin-when-cross-origin";
+    document.getElementById("playBtn").replaceWith(f);
+  });
   if (typeof L === "undefined") return;
   const p = placeOf(s);
   lmap = L.map("mini", { zoomControl: false, scrollWheelZoom: false }).setView([p.lat, p.lng], 16);
