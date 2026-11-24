@@ -5,6 +5,8 @@
 アニメ・漫画・映画・ドラマの舞台（聖地・ロケ地）を、作品ごとの地図とシーン一覧で案内する一般公開サイト。
 素の HTML/JS＋Leaflet。作品・場所のデータはリポジトリ内のファイルで持ち、Python で静的ページに書き出して GitHub Pages で配信する。
 
+- 公開URL（予定）: https://scenetrail.github.io/ （日本語）・https://scenetrail.github.io/en/ （英語）
+- リポジトリ: https://github.com/scenetrail/scenetrail.github.io （Organization `scenetrail`／**Public**。Pages のため）。ImmersaMap の Organization とは分けた（2026-11-24）
 - 仕様書: `docs/spec/01_spec.md`（レビューの記録は `docs/spec/review_log.md`）
 - 2026-11-24 立ち上げ（名前は SceneTrail。日英2言語で作る）。ImmersaMap（`~/projects/immersamap`）とは別プロジェクトにした（見る人・権利の扱いが違うため）
 
