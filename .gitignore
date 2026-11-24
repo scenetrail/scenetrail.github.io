@@ -1,0 +1,8 @@
+.env
+*.key
+*.pem
+secrets/
+.venv/
+__pycache__/
+public/
+.claude/worktrees/
