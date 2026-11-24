@@ -6,625 +6,497 @@
 <title>SceneTrail 試作品</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Inter:wght@500;700&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
 <style>
-/* 方向：夕暮れの空（藍）と組紐の朱。紙のような明るい地に、地図と一覧を主役に置く */
+/* 方向：映画の場面を選ぶ「フィルムの目次」。写真が主役、文字は明朝で大きく、地図は脇役 */
 :root {
-  --bg: #f7f6f2;        /* 紙 */
-  --surface: #ffffff;
-  --ink: #1d2540;       /* 藍 */
-  --ink-soft: #545c75;
-  --line: #d9d8d0;
-  --accent: #c8452c;    /* 組紐の朱 */
-  --accent-soft: #fbe9e4;
-  --dusk: #2e3a66;      /* 夕暮れ */
-  --c-off: #1f6f5c;     /* 確かさ：公式 */
-  --c-press: #2f5d9e;   /* 確かさ：報道 */
-  --c-fan: #9a6a12;     /* 確かさ：ファン */
-  --warn-bg: #fff7e6;
-  --warn-line: #e0b453;
-  --f-display: "Shippori Mincho", "Hiragino Mincho ProN", serif;
+  --bg: #f4f2ed;
+  --paper: #ffffff;
+  --ink: #161b2e;
+  --ink-soft: #5b6072;
+  --line: #e0ddd5;
+  --night: #0e1430;      /* 夜空 */
+  --dusk: #f0a35e;       /* 夕焼け */
+  --cord: #c8452c;       /* 組紐 */
+  --c-off: #1f6f5c; --c-press: #2f5d9e; --c-fan: #9a6a12;
+  --warn-bg: #fff6e3; --warn-line: #e3b04f;
+  --f-display: "Shippori Mincho B1", "Hiragino Mincho ProN", serif;
   --f-body: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --f-num: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --radius: 14px;
 }
 [hidden] { display: none !important; }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.75 var(--f-body); }
-a { color: var(--dusk); text-underline-offset: 3px; }
-a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.8 var(--f-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+img { max-width: 100%; display: block; }
 button { font: inherit; cursor: pointer; }
-.wrap { max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--dusk); outline-offset: 2px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* 試作品の帯 */
+.proto { background: #000; color: #ddd; font-size: 11px; }
+.proto .wrap { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-top: 3px; padding-bottom: 3px; }
 
 /* 上部 */
-.proto { background: var(--ink); color: #fff; font-size: 12px; padding: 4px 0; }
-.proto .wrap { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.proto select { background: #fff; color: #1d2540; border-radius: 4px; }
-.proto button { background: none; border: 1px solid #fff8; color: #fff; border-radius: 4px; font-size: 12px; padding: 0 8px; }
-header.site { background: var(--surface); border-bottom: 1px solid var(--line); }
-header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
-.logo { font-family: var(--f-display); font-weight: 800; font-size: 21px; color: var(--ink); text-decoration: none; letter-spacing: .02em; }
-.logo span { color: var(--accent); }
-.lang { border: 1px solid var(--ink); border-radius: 999px; padding: 3px 12px; font-size: 13px; text-decoration: none; color: var(--ink); }
-.unofficial { background: var(--dusk); color: #e8ebf7; font-size: 12px; }
-.unofficial .wrap { padding-top: 4px; padding-bottom: 4px; }
-.crumb { font-size: 13px; color: var(--ink-soft); padding-top: 10px; }
-.crumb a { color: var(--ink-soft); }
+.top-bar { position: sticky; top: 0; z-index: 50; background: rgba(14,20,48,.94); backdrop-filter: blur(8px); color: #fff; }
+.top-bar .wrap { display: flex; align-items: center; justify-content: space-between; height: 54px; gap: 12px; }
+.logo { font-family: var(--f-display); font-weight: 800; font-size: 20px; text-decoration: none; letter-spacing: .03em; }
+.logo i { font-style: normal; color: var(--dusk); }
+.top-bar nav { display: flex; gap: 4px; align-items: center; }
+.top-bar nav a { font-size: 13px; text-decoration: none; padding: 4px 10px; border-radius: 999px; opacity: .9; white-space: nowrap; }
+.top-bar nav a.on { background: rgba(255,255,255,.16); opacity: 1; }
+.lang { border: 1px solid rgba(255,255,255,.5); }
+.unofficial { font-size: 11px; color: rgba(255,255,255,.7); text-align: center; padding: 0 8px 4px; }
 
-h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(26px, 6vw, 36px); line-height: 1.3; margin: 8px 0 4px; text-wrap: balance; }
-h2 { font-family: var(--f-display); font-size: 20px; margin: 28px 0 10px; display: flex; align-items: center; gap: 8px; }
-h2::before { content: ""; width: 18px; height: 3px; background: var(--accent); border-radius: 2px; }
-.meta { color: var(--ink-soft); font-size: 14px; }
-.lead { max-width: 40em; }
+/* 作品の扉（トップ） */
+.hero { position: relative; color: #fff; background: var(--night); min-height: 480px; display: flex; align-items: flex-end; overflow: hidden; }
+.hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .7; }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,20,48,.1) 0%, rgba(14,20,48,.35) 45%, rgba(14,20,48,.96) 100%); }
+.hero .wrap { position: relative; z-index: 1; padding-top: 80px; padding-bottom: 36px; width: 100%; }
+.eyebrow { font-family: var(--f-num); font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: var(--dusk); font-weight: 700; }
+.hero h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(38px, 9vw, 68px); line-height: 1.2; margin: 6px 0 10px; text-wrap: balance; }
+.hero p { max-width: 34em; color: rgba(255,255,255,.9); margin: 0 0 18px; }
+.hero .stats { display: flex; gap: 22px; flex-wrap: wrap; font-size: 13px; color: rgba(255,255,255,.85); }
+.hero .stats b { font-family: var(--f-num); font-size: 26px; color: #fff; display: block; line-height: 1.1; }
+.credit { position: absolute; right: 8px; bottom: 4px; z-index: 1; font-size: 10px; color: rgba(255,255,255,.6); }
 
-/* 確かさ */
-.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; border-radius: 4px; padding: 1px 8px; border: 1.5px solid currentColor; white-space: nowrap; background: var(--surface); }
+/* 章のタブ */
+.chapters { position: sticky; top: 74px; z-index: 40; background: var(--bg); border-bottom: 1px solid var(--line); }
+.chapters .wrap { display: flex; gap: 6px; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
+.chapters button { flex: none; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.chapters button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.chapters button[aria-pressed="true"]::before { content: "✓ "; }
+.tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 22px 0 6px; }
+.search { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; min-width: 0; }
+.search input { border: none; outline: none; font: inherit; width: 100%; min-width: 0; background: transparent; color: var(--ink); }
+.pill { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--ink); border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 14px; text-decoration: none; background: var(--paper); white-space: nowrap; }
+.manner-note { font-size: 13px; color: var(--ink-soft); margin: 4px 0 0; }
+.manner-note a { color: var(--cord); font-weight: 700; }
+
+/* 章の見出しと場面カード */
+.chapter-h { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 40px 0 14px; }
+.chapter-h .no { font-family: var(--f-num); font-weight: 700; color: var(--cord); letter-spacing: .15em; font-size: 12px; }
+.chapter-h h2 { font-family: var(--f-display); font-weight: 800; font-size: 26px; margin: 0; }
+.chapter-h span.d { color: var(--ink-soft); font-size: 13px; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
+.card { position: relative; display: flex; flex-direction: column; background: var(--paper); border-radius: var(--radius); overflow: hidden; text-decoration: none; box-shadow: 0 1px 2px rgba(22,27,46,.06), 0 6px 20px rgba(22,27,46,.06); transition: transform .2s, box-shadow .2s; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(22,27,46,.08), 0 14px 32px rgba(22,27,46,.12); }
+.card .ph { position: relative; aspect-ratio: 4 / 3; background: var(--night); overflow: hidden; }
+.card .ph img { width: 100%; height: 100%; object-fit: cover; }
+.card .ph .scn { position: absolute; left: 12px; top: 10px; font-family: var(--f-num); font-weight: 700; font-size: 12px; letter-spacing: .12em; color: #fff; background: rgba(14,20,48,.72); padding: 2px 8px; border-radius: 4px; }
+.card .ph .noimg { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 24px; color: #fff; background: radial-gradient(120% 90% at 85% 5%, #46508f 0%, var(--night) 62%); }
+.card .ph .noimg .big { font-family: var(--f-num); font-weight: 700; font-size: 96px; line-height: 1; color: rgba(255,255,255,.14); letter-spacing: -.02em; }
+.card .ph .noimg small { margin-top: 10px; font-size: 11px; color: rgba(255,255,255,.6); }
+.card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.card .title { font-family: var(--f-display); font-weight: 800; font-size: 19px; line-height: 1.45; }
+.card .where { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); }
+.card .where::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--cord); flex: none; }
+.card .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 6px; }
+.go { font-size: 13px; font-weight: 700; color: var(--cord); white-space: nowrap; }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; border-radius: 4px; padding: 0 7px; border: 1.5px solid currentColor; white-space: nowrap; line-height: 1.7; background: var(--paper); }
 .badge.official { color: var(--c-off); } .badge.official::before { content: "◆"; }
 .badge.press { color: var(--c-press); } .badge.press::before { content: "●"; }
 .badge.fan { color: var(--c-fan); border-style: dashed; } .badge.fan::before { content: "▲"; }
+.empty { text-align: center; padding: 40px 16px; color: var(--ink-soft); }
 
-.notice { background: var(--warn-bg); border: 1.5px solid var(--warn-line); border-radius: 8px; padding: 10px 14px; margin: 14px 0; }
-.notice b { display: block; }
-
-/* トップ */
-.hero { background: linear-gradient(180deg, var(--dusk) 0%, #5a5f8f 55%, #d99c7a 100%); color: #fff; padding: 40px 0 36px; }
-.hero h1 { color: #fff; }
-.hero p { max-width: 36em; color: #f1eef6; }
-.hero .btn { background: #fff; color: var(--ink); border-color: #fff; }
-.work-card { display: grid; grid-template-columns: 1fr; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-decoration: none; color: var(--ink); }
-.work-card:hover { border-color: var(--ink); }
-.work-card .t { font-family: var(--f-display); font-size: 22px; font-weight: 800; }
-.counts { display: flex; flex-wrap: wrap; gap: 6px; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 13px; min-height: 34px; }
-.chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
-.chip[aria-pressed="true"]::before { content: "✓ "; }
-.btn { display: inline-flex; justify-content: center; align-items: center; gap: 6px; border: 2px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 10px 16px; font-weight: 700; text-decoration: none; min-height: 44px; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn.block { display: flex; width: 100%; }
-
-/* 作品ページ */
-.work-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 8px; }
-#map { height: 48vh; min-height: 280px; border-radius: 10px; border: 1px solid var(--line); background: #e9eaee; z-index: 0; }
-.map-err { height: 48vh; min-height: 280px; border-radius: 10px; border: 2px solid var(--accent); background: var(--accent-soft); display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; }
-.filter-label { font-size: 12px; color: var(--ink-soft); margin: 10px 0 4px; letter-spacing: .05em; }
-.count { font-size: 13px; color: var(--ink-soft); margin: 10px 0 0; }
-.area-h { position: sticky; top: 0; background: var(--bg); font-weight: 700; padding: 8px 0 4px; border-bottom: 2px solid var(--ink); margin-top: 14px; z-index: 1; }
-.row { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: start; padding: 12px 6px; border-bottom: 1px solid var(--line); border-radius: 6px; transition: background .2s; }
-.row.sel { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
-.num { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
-.row .name { font-weight: 700; font-size: 16px; }
-.row .scene { font-size: 13px; color: var(--ink-soft); margin: 2px 0 4px; }
-.mapbtn { border: 1.5px solid var(--ink); background: var(--surface); border-radius: 6px; font-size: 12px; padding: 4px 8px; min-height: 36px; white-space: nowrap; }
-.empty { border: 1.5px dashed var(--line); border-radius: 8px; padding: 20px; text-align: center; margin-top: 12px; }
-
-/* 地図のピン */
-.pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--ink); border: 2px solid #fff; box-shadow: 0 1px 4px #0006; display: flex; align-items: center; justify-content: center; }
-.pin span { transform: rotate(45deg); color: #fff; font: 700 12px var(--f-body); }
-.pin.sel { background: var(--accent); }
-.pin.fan { background: #6b6f80; }
-.pin.fan.sel { background: var(--accent); }
-.marker-cluster { background: transparent; }
-.marker-cluster div { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: 3px solid var(--ink); color: var(--ink); font: 700 14px var(--f-body); display: flex; align-items: center; justify-content: center; }
-.leaflet-popup-content { font-family: var(--f-body); margin: 10px 12px; }
-.pop b { display: block; font-size: 14px; }
-.pop .badge { margin: 4px 0; }
-
-/* 場所ページ */
-.place { max-width: 760px; }
-.compare { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
-.quote, .own { margin: 0; }
-.quote { border: 1.5px solid var(--ink); border-radius: 8px; padding: 8px; background: var(--surface); }
-.qlabel { display: inline-block; background: var(--ink); color: #fff; font-size: 11px; padding: 0 8px; border-radius: 3px; margin-bottom: 6px; }
-.ph { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; padding: 8px; }
-.quote .ph { background: repeating-linear-gradient(135deg, #e6e7ee 0 10px, #eef0f5 10px 20px); color: var(--ink-soft); }
-.own .ph { background: #e3e8df; color: #4c5a45; }
-figcaption { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
-.embed { border: 1.5px solid var(--ink); border-radius: 8px; overflow: hidden; background: var(--surface); }
-.embed .ph { background: linear-gradient(180deg, var(--dusk), #5a5f8f); color: #fff; flex-direction: column; gap: 8px; }
-.embed .play { background: #fff; color: var(--ink); border: none; border-radius: 999px; padding: 10px 18px; font-weight: 700; }
-.embed small { font-size: 12px; opacity: .9; }
-.cautions { background: var(--warn-bg); border: 1.5px solid var(--warn-line); border-radius: 8px; padding: 12px 16px; }
-.cautions h2 { margin-top: 0; }
-.cautions h2::before { content: "⚠"; width: auto; height: auto; background: none; color: var(--accent); }
+/* 場面ページ */
+.scene-head { background: var(--night); color: #fff; padding: 22px 0 26px; }
+.crumb { font-size: 12px; color: rgba(255,255,255,.7); }
+.crumb a { color: rgba(255,255,255,.88); }
+.scene-head h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(28px, 6vw, 44px); line-height: 1.3; margin: 8px 0 8px; text-wrap: balance; }
+.scene-head .sub { color: rgba(255,255,255,.85); font-size: 14px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.compare { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 22px; }
+@media (min-width: 760px) { .compare { grid-template-columns: 1fr 1fr; } }
+.frame { margin: 0; min-width: 0; }
+.frame .lbl { font-family: var(--f-num); font-size: 11px; font-weight: 700; letter-spacing: .15em; color: var(--ink-soft); margin-bottom: 6px; }
+.frame .box { aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; position: relative; background: #dcdbe3; }
+.frame .box img { width: 100%; height: 100%; object-fit: cover; }
+.frame .none { height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 13px; }
+.quote .box { border: 2px solid var(--ink); background: repeating-linear-gradient(135deg, #e4e4ec 0 12px, #eeeef4 12px 24px); display: flex; align-items: center; justify-content: center; text-align: center; color: var(--ink-soft); font-size: 13px; padding: 12px 18px; }
+.quote .tag { position: absolute; left: 8px; top: 8px; background: var(--ink); color: #fff; font-size: 11px; padding: 0 8px; border-radius: 3px; }
+figcaption { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+.embed { aspect-ratio: 16 / 9; border-radius: 10px; background: linear-gradient(160deg, #1c2550, var(--night)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 14px; }
+.embed button { background: #fff; color: var(--ink); border: none; border-radius: 999px; padding: 10px 18px; font-weight: 700; }
+.embed small { font-size: 12px; opacity: .85; }
+.prose { max-width: 40em; font-size: 16px; }
+.layout { display: grid; grid-template-columns: 1fr; gap: 28px; margin-top: 28px; }
+@media (min-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr) 380px; } }
+.place-card { order: -1; }
+@media (min-width: 900px) { .place-card { order: 0; } }
+.place-card .cautions { padding: 10px 14px; font-size: 13.5px; }
+.place-card .cautions h2 { font-size: 16px; }
+.place-card { background: var(--paper); border-radius: var(--radius); overflow: hidden; box-shadow: 0 6px 20px rgba(22,27,46,.07); align-self: start; }
+@media (min-width: 900px) { .place-card { position: sticky; top: 90px; } }
+.place-card .mini { height: 220px; background: #e6e8ee; }
+.place-card .in { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.place-card h3 { font-family: var(--f-display); font-size: 21px; margin: 0; line-height: 1.4; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 13.5px; margin: 0; }
+.kv dt { color: var(--ink-soft); } .kv dd { margin: 0; }
+.btn { display: flex; justify-content: center; align-items: center; gap: 6px; border-radius: 10px; padding: 11px 14px; font-weight: 700; text-decoration: none; min-height: 46px; border: 2px solid var(--ink); background: var(--paper); }
+.btn.primary { background: var(--cord); border-color: var(--cord); color: #fff; }
+.cautions { background: var(--warn-bg); border: 1.5px solid var(--warn-line); border-radius: 12px; padding: 14px 18px; }
+.cautions h2 { font-family: var(--f-display); font-size: 20px; margin: 0 0 6px; }
 .cautions ul { margin: 0; padding-left: 1.2em; }
-.kv { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; font-size: 14px; }
-.kv dt { color: var(--ink-soft); }
-.kv dd { margin: 0; }
-.src { padding-left: 1.2em; font-size: 14px; }
-.pager { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin: 28px 0 8px; font-size: 14px; }
+.sec-h { font-family: var(--f-display); font-size: 22px; font-weight: 800; margin: 30px 0 10px; }
+.src { font-size: 13.5px; padding-left: 1.2em; }
+.next { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 40px 0 10px; }
+@media (min-width: 640px) { .next { grid-template-columns: 1fr 1fr; } }
+.next a { display: block; background: var(--paper); border-radius: 12px; padding: 14px 16px; text-decoration: none; border: 1px solid var(--line); }
+.next a small { display: block; font-family: var(--f-num); font-size: 11px; letter-spacing: .12em; color: var(--ink-soft); }
+.next a b { font-family: var(--f-display); font-size: 17px; }
+.next a.n { text-align: right; }
 .small { font-size: 13px; color: var(--ink-soft); }
-.page { padding-bottom: 32px; }
-.text-page { max-width: 720px; }
 
-footer { border-top: 1px solid var(--line); background: var(--surface); font-size: 13px; color: var(--ink-soft); padding: 18px 0 28px; }
-footer nav { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0; }
+/* 地図ページ */
+#bigmap { height: calc(100vh - 230px); min-height: 420px; border-radius: var(--radius); margin-top: 12px; }
+.pin { width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--night); border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
+.pin span { transform: rotate(45deg); color: #fff; font: 700 11px var(--f-num); }
+.pin.here { background: var(--cord); }
+.leaflet-popup-content { font-family: var(--f-body); margin: 10px 12px; }
+.pop b { display: block; font-family: var(--f-display); font-size: 15px; line-height: 1.4; }
+.pop a { color: var(--cord); font-weight: 700; }
 
-@media (min-width: 600px) {
-  .compare.two { grid-template-columns: 1fr 1fr; }
-}
-@media (min-width: 900px) {
-  .work-grid { grid-template-columns: minmax(0, 1fr) 420px; align-items: start; }
-  #map, .map-err { position: sticky; top: 12px; height: calc(100vh - 24px); max-height: 760px; }
-  .list { max-height: calc(100vh - 24px); overflow: auto; padding-right: 4px; }
-}
+/* 文章のページ */
+.text-page { max-width: 720px; padding-top: 28px; padding-bottom: 40px; }
+.text-page h1 { font-family: var(--f-display); font-size: 32px; }
+.text-page h2 { font-family: var(--f-display); font-size: 20px; margin-top: 26px; }
+
+footer { margin-top: 56px; background: var(--night); color: rgba(255,255,255,.75); font-size: 12.5px; padding: 26px 0 34px; }
+footer nav { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0; }
+footer a { color: #fff; }
+footer .credits { margin-top: 10px; font-size: 11px; color: rgba(255,255,255,.55); }
 </style>
 </head>
 <body>
-<div class="proto"><div class="wrap"><span id="protoNote"></span><span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label for="baseSel" id="baseLabel"></label><select id="baseSel" style="font-size:12px"></select><button id="toggleMapFail" type="button"></button></span></div></div>
-<header class="site"><div class="wrap"><a class="logo" href="#top">Scene<span>Trail</span></a><a class="lang" id="langLink" href="#"></a></div></header>
-<div class="unofficial"><div class="wrap" id="unofficial"></div></div>
+<div class="proto"><div class="wrap"><span id="protoNote"></span><span id="protoNote2"></span></div></div>
+<div class="top-bar">
+  <div class="wrap">
+    <a class="logo" id="logo" href="#top">Scene<i>Trail</i></a>
+    <nav id="nav"></nav>
+  </div>
+  <div class="unofficial" id="unofficial"></div>
+</div>
 <main id="app"></main>
 <footer><div class="wrap" id="footer"></div></footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
+<script src="data.js"></script>
 <script>
 "use strict";
-/* ===== 仮のデータ（場所・説明はすべて試作用。実在の情報ではない） ===== */
-const AREAS = [
-  { id: "hida", ja: "飛騨", en: "Hida" },
-  { id: "tokyo", ja: "東京", en: "Tokyo" },
-  { id: "other", ja: "その他", en: "Other" },
-];
-const KINDS = [
-  { ja: "駅", en: "Station" }, { ja: "神社", en: "Shrine" }, { ja: "図書館", en: "Library" },
-  { ja: "橋", en: "Bridge" }, { ja: "階段", en: "Stairs" }, { ja: "歩道橋", en: "Footbridge" },
-  { ja: "交差点", en: "Crossing" }, { ja: "展望台", en: "Observation deck" }, { ja: "川沿いの道", en: "Riverside path" },
-  { ja: "バス停", en: "Bus stop" }, { ja: "公園", en: "Park" }, { ja: "坂道", en: "Slope" },
-];
-const SCENES = [
-  { ja: "主人公が町に着く場面", en: "The scene where the hero arrives in town" },
-  { ja: "手がかりを調べる場面", en: "The scene where the hero looks for clues" },
-  { ja: "二人がすれ違う場面", en: "The scene where the two pass each other" },
-  { ja: "朝の通学の場面", en: "The morning walk to school" },
-  { ja: "夕暮れの場面", en: "The scene at dusk" },
-  { ja: "最後の場面", en: "The final scene" },
-];
-const CERTS = ["official", "press", "fan"];
-const CERT_LABEL = {
-  official: { ja: "公式の案内あり", en: "Official guide" },
-  press: { ja: "報道で紹介", en: "Reported in the press" },
-  fan: { ja: "ファンの調べ", en: "Found by fans" },
-};
-const CERT_LONG = {
-  official: { ja: "作品の公式・自治体・観光協会が舞台として案内しています。", en: "The official site, local government or tourism association lists this as a setting." },
-  press: { ja: "新聞・テレビ・出版社の記事で舞台として紹介されています。公式の案内はありません。", en: "News articles introduce this as a setting. There is no official guide." },
-  fan: { ja: "ファンの調べで特定された場所です（別々の2人以上が挙げています）。公式の確認はありません。", en: "Identified by fans (at least two independent sources). Not officially confirmed." },
-};
-// 地域ごとの中心（仮）。ピンはこの周りに散らす
-const CENTERS = { hida: [36.238, 137.186], tokyo: [35.686, 139.722], other: [36.05, 138.10] };
-const COUNTS = { hida: 15, tokyo: 22, other: 5 };
-function rnd(seed) { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
-const R = rnd(7);
-const PLACES = [];
-let n = 0;
-for (const a of AREAS) {
-  for (let i = 0; i < COUNTS[a.id]; i++) {
-    n++;
-    const k = KINDS[(n * 5) % KINDS.length];
-    const spread = a.id === "tokyo" ? 0.035 : a.id === "hida" ? 0.02 : 0.25;
-    const cert = n % 3 === 0 ? "fan" : n % 5 === 0 ? "press" : (n % 2 ? "official" : "fan");
-    const media = n % 4 === 0 ? "embed" : n % 7 === 0 ? "none" : "quote";
-    PLACES.push({
-      no: n, id: "p" + n, area: a.id,
-      name: { ja: `仮の場所 ${n}（${k.ja}）`, en: `Sample place ${n} (${k.en})` },
-      scene: SCENES[n % SCENES.length],
-      cert, media, own: n % 3 !== 2,
-      lat: CENTERS[a.id][0] + (R() - 0.5) * spread,
-      lng: CENTERS[a.id][1] + (R() - 0.5) * spread * 1.3,
-    });
-  }
-}
-
-/* ===== 言葉 ===== */
+/* data.js で CHAPTERS・PLACES・SCENES・PHOTOS・HERO_PHOTO を定義している */
 const T = {
   ja: {
-    proto: "試作品：場所・説明はすべて仮のデータです",
-    mapFailOn: "地図の失敗を試す", mapFailOff: "地図を元に戻す",
-    langTo: "English", unofficial: "非公式のファンサイトです。作品の公式とは関係ありません。",
-    top: "トップ", heroTitle: "作品の舞台を、地図と場面で歩く",
-    heroText: "アニメ・漫画・映画・ドラマの舞台を、作品ごとの地図とシーン一覧で案内します。場所ごとに情報の確かさと出典、現地での注意事項を載せています。",
-    firstTime: "はじめての方へ：巡礼のマナー", works: "作品", all: "すべて",
-    kinds: ["アニメ", "漫画", "映画", "ドラマ"], workKind: "アニメ映画・2016年", workTitle: "君の名は。",
-    mainSet: "主な舞台：岐阜県飛騨市・東京都", places: "か所", more: "作品は順に増やします。",
-    official: "公式サイト", summary: "（作品の紹介を自分の言葉で2〜3行。試作品のため仮の文）",
-    beforeVisit: "訪ねる前に", beforeVisitText: "住宅地の中の場所があります。お出かけの前にお読みください：",
-    manners: "巡礼のマナー", list: "場所の一覧", area: "地域", cert: "確かさ",
-    showing: (a, b) => `${b} か所中 ${a} か所を表示`, whatCert: "確かさとは？",
-    showOnMap: "地図で見る", details: "詳しく見る", noMatch: "条件に合う場所がありません。", clear: "絞り込みを外す",
-    mapFail: "地図を読み込めませんでした。下の一覧・住所・注意事項はそのまま見られます。",
-    film: "本編：", sceneAndNow: "場面と今の様子", quote: "引用",
-    quotePh: "場面の画像（引用）\n1場面1枚・長辺640px以下", copyright: "『君の名は。』より ©（公式の権利表記）",
-    ownPh: "今の様子（自分で撮った写真）", shotBy: "撮影：SceneTrail（2026年12月）",
-    play: (t) => `▶ 公式の予告編でこの場面を見る（${t} から）`,
-    embedNote: "押すと YouTube（公式チャンネル）から読み込みます。押すまで通信しません。",
-    embedLoaded: "（試作品のため、ここでは動画を読み込みません）", openYT: "YouTube で開く",
-    desc: "（場面の説明を自分の言葉で。どの場面か・どの向きから見た景色か。試作品のため仮の文）",
-    cautions: "注意事項",
-    cautionItems: ["住宅地の中です。階段や道をふさいで撮らないでください", "早朝・夜は静かに。住民を撮らないでください", "神社の境内では神社の撮影の決まりに従ってください"],
-    access: "行き方", address: "住所", stand: "立ち位置", addressVal: "（仮）〇〇市〇〇町", standVal: "階段の下から見上げる位置",
-    route: "地図アプリで経路を開く", sources: "出典と確かさ", checked: "に確認",
-    prev: "前の場所", next: "次の場所", backList: (a) => `${a}の一覧へ`, report: "この場所・画像について連絡する",
-    contact: "連絡・削除の求め", about: "このサイトについて", gsi: "地図：国土地理院（地理院タイル）",
-    footerUnofficial: "SceneTrail は非公式のファンサイトです。",
+    proto: "試作品：場面と場所の対応・説明は確認前の仮のものです",
+    proto2: "写真は自由素材（CC0・パブリックドメイン）。場面の画像の枠は空けてあります",
+    unofficial: "非公式のファンサイトです。作品の公式とは関係ありません。",
+    scenes: "場面", map: "地図", manners: "マナー", langTo: "EN",
+    title: "君の名は。", eyebrow: "Your Name. ／ 2016",
+    heroLead: "あの場面の場所へ。見たい場面を選ぶと、場所・行き方・現地で気を付けることが分かります。",
+    nScenes: "場面", nPlaces: "か所", nAreas: "地域",
+    all: "すべて", search: "場面・場所で探す（例：階段、飛騨、カフェ）", showMap: "地図で見る",
+    beforeVisit: "住宅地の中の場所もあります。行く前に", mannerLink: "巡礼のマナー", mannerTail: "をどうぞ。",
+    noMatch: "条件に合う場面がありません。", see: "場面を見る →", noPhoto: "今の写真はまだありません",
+    scene: "SCENE", chapter: "CHAPTER",
+    theScene: "THE SCENE ／ 場面", today: "TODAY ／ 今の様子", quote: "引用",
+    quotePh: "ここに場面の画像が入ります（引用：1枚・長辺640px以下・手を加えない）",
+    copyright: "『君の名は。』より ©（公式の権利表記）",
+    play: "▶ 公式の予告編でこの場面を見る（1:23 から）", embedNote: "押すと YouTube（公式チャンネル）から読み込みます",
+    embedDone: "（試作品のため動画は読み込みません）",
+    noToday: "今の写真はまだありません", photoBy: "写真",
+    about: "この場面について", place: "この場面の場所",
+    address: "住所", stand: "立ち位置", route: "経路を開く", sv: "ストリートビューで見る",
+    cautions: "⚠ 注意事項", sources: "出典と確かさ", checked: "に確認",
+    sameplace: "同じ場所の場面", prev: "前の場面", next: "次の場面",
+    report: "この場面・画像について連絡する", allScenes: "場面の一覧へ",
+    mapTitle: "地図で場面を探す", mapLead: "ピンの数字は場面の番号です。",
+    footer1: "SceneTrail は非公式のファンサイトです。作品の権利は各権利者に帰属します。",
+    contact: "連絡・削除の求め", about2: "このサイトについて",
+    mapAttr: "地図：OpenFreeMap（OpenStreetMap のデータ）",
   },
   en: {
-    proto: "Prototype: all places and text are sample data",
-    mapFailOn: "Simulate map failure", mapFailOff: "Restore map",
-    langTo: "日本語", unofficial: "Unofficial fan site. Not affiliated with the official works.",
-    top: "Top", heroTitle: "Walk the settings of your favorite stories",
-    heroText: "Maps and scene lists of real-world settings from anime, manga, films and TV dramas. Every place shows how certain the information is, its sources, and what to be careful about on site.",
-    firstTime: "First time? Read the etiquette", works: "Works", all: "All",
-    kinds: ["Anime", "Manga", "Film", "Drama"], workKind: "Animated film, 2016", workTitle: "Your Name.",
-    mainSet: "Main settings: Hida (Gifu) and Tokyo", places: "places", more: "More works will be added.",
-    official: "Official site", summary: "(Two or three lines about the work in our own words. Sample text.)",
-    beforeVisit: "Before you visit", beforeVisitText: "Some places are in residential areas. Please read this before you go:",
-    manners: "Pilgrimage etiquette", list: "Locations", area: "Area", cert: "Certainty",
-    showing: (a, b) => `Showing ${a} of ${b}`, whatCert: "What is certainty?",
-    showOnMap: "Show on map", details: "Details", noMatch: "No places match these filters.", clear: "Clear filters",
-    mapFail: "The map could not be loaded. The list, addresses and cautions below are still available.",
-    film: "Film: ", sceneAndNow: "The scene and today", quote: "Quote",
-    quotePh: "Scene image (quotation)\nOne per scene, max 640px", copyright: "From \"Your Name.\" © (official credit)",
-    ownPh: "Today (our own photo)", shotBy: "Photo: SceneTrail (Dec 2026)",
-    play: (t) => `▶ Watch this scene in the official trailer (from ${t})`,
-    embedNote: "Tapping loads YouTube (official channel). Nothing is sent before you tap.",
-    embedLoaded: "(The prototype does not load the video.)", openYT: "Open on YouTube",
-    desc: "(Description of the scene in our own words: which scene, and from which direction. Sample text.)",
-    cautions: "Cautions",
-    cautionItems: ["This is a residential area. Do not block the stairs or the road while taking photos", "Keep quiet early in the morning and at night. Do not photograph residents", "Follow the shrine's rules on photography"],
-    access: "Getting there", address: "Address", stand: "Where to stand", addressVal: "(sample) ○○-machi, ○○ City", standVal: "At the bottom of the stairs, looking up",
-    route: "Open directions in a map app", sources: "Sources and certainty", checked: "checked",
-    prev: "Previous", next: "Next", backList: (a) => `All places in ${a}`, report: "Report an issue with this place or image",
-    contact: "Contact / removal requests", about: "About this site", gsi: "Map: Geospatial Information Authority of Japan (GSI Tiles)",
-    footerUnofficial: "SceneTrail is an unofficial fan site.",
+    proto: "Prototype: scene–place pairs and descriptions are unverified samples",
+    proto2: "Photos are CC0 / public domain. Scene image frames are left empty",
+    unofficial: "Unofficial fan site. Not affiliated with the official works.",
+    scenes: "Scenes", map: "Map", manners: "Etiquette", langTo: "日本語",
+    title: "Your Name.", eyebrow: "君の名は。 ／ 2016",
+    heroLead: "Find the real places behind the scenes. Pick a scene to see where it is, how to get there, and what to be careful about.",
+    nScenes: "scenes", nPlaces: "places", nAreas: "areas",
+    all: "All", search: "Search scenes or places (e.g. stairs, Hida, cafe)", showMap: "Show on map",
+    beforeVisit: "Some places are in residential areas. Before you go, read the", mannerLink: "pilgrimage etiquette", mannerTail: ".",
+    noMatch: "No scenes match.", see: "See the scene →", noPhoto: "No photo yet",
+    scene: "SCENE", chapter: "CHAPTER",
+    theScene: "THE SCENE", today: "TODAY", quote: "Quote",
+    quotePh: "The scene image goes here (quotation: one image, max 640px, unedited)",
+    copyright: "From \"Your Name.\" © (official credit)",
+    play: "▶ Watch this scene in the official trailer (from 1:23)", embedNote: "Tapping loads YouTube (official channel)",
+    embedDone: "(The prototype does not load the video.)",
+    noToday: "No photo yet", photoBy: "Photo",
+    about: "About this scene", place: "Where it is",
+    address: "Address", stand: "Where to stand", route: "Directions", sv: "Street View",
+    cautions: "⚠ Cautions", sources: "Sources and certainty", checked: "checked",
+    sameplace: "Other scenes here", prev: "Previous scene", next: "Next scene",
+    report: "Report an issue with this scene or image", allScenes: "All scenes",
+    mapTitle: "Find scenes on the map", mapLead: "Pin numbers are scene numbers.",
+    footer1: "SceneTrail is an unofficial fan site. All rights to the works belong to their owners.",
+    contact: "Contact / removal requests", about2: "About",
+    mapAttr: "Map: OpenFreeMap (OpenStreetMap data)",
   },
 };
-
-/* ===== 地図の種類（見比べ用） ===== */
-const OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors';
-const BASES = {
-  osm: { ja: "OpenStreetMap 標準", en: "OpenStreetMap Standard", raster: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr: OSM_ATTR, maxZoom: 19 },
-  ofm_liberty: { ja: "OpenFreeMap Liberty（OSM のデータ）", en: "OpenFreeMap Liberty (OSM data)", style: "https://tiles.openfreemap.org/styles/liberty" },
-  ofm_positron: { ja: "OpenFreeMap Positron（OSM のデータ）", en: "OpenFreeMap Positron (OSM data)", style: "https://tiles.openfreemap.org/styles/positron" },
-  gsi: { ja: "国土地理院 淡色地図", en: "GSI pale map", raster: "https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", attr: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener noreferrer">国土地理院</a>', maxZoom: 18 },
+const CERT = {
+  official: { ja: "公式の案内あり", en: "Official guide", long: { ja: "作品の公式・自治体・観光協会が舞台として案内しています。", en: "Listed as a setting by the official site, local government or tourism association." } },
+  press: { ja: "報道で紹介", en: "Reported in the press", long: { ja: "新聞・テレビ・出版社の記事で舞台として紹介されています。公式の案内はありません。", en: "Introduced as a setting by news articles. No official guide." } },
+  fan: { ja: "ファンの調べ", en: "Found by fans", long: { ja: "ファンの調べで特定された場所です（別々の2人以上）。公式の確認はありません。", en: "Identified by fans (two or more independent sources). Not officially confirmed." } },
 };
-const OFM_ATTR = '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> ' + OSM_ATTR;
-let base = (() => { try { return sessionStorage.getItem("base") || "ofm_liberty"; } catch { return "ofm_liberty"; } })();
-if (!BASES[base]) base = "ofm_liberty";
-function baseLayer() {
-  const b = BASES[base];
-  if (b.raster) return L.tileLayer(b.raster, { maxZoom: b.maxZoom, attribution: b.attr });
-  return L.maplibreGL({ style: b.style, attribution: OFM_ATTR });
-}
-// 地名の言葉をページの言葉に合わせる（英語のページでは英語の地名）。地図に載せたあとで呼ぶ
-function hookLabels(ml) {
-  ml.on("styledata", () => {
-    const field = ["coalesce", ["get", "name:" + lang], ["get", "name"]];
-    for (const ly of ml.getStyle().layers) {
-      if (ly.type === "symbol" && ml.getLayoutProperty(ly.id, "text-field")) {
-        try { ml.setLayoutProperty(ly.id, "text-field", field); } catch { /* 文字の無い層は飛ばす */ }
-      }
-    }
-  });
-}
 
-/* ===== 状態 ===== */
 let lang = "ja";
-let mapFail = false;
-let map = null, cluster = null, markers = {};
-let selected = null;
-const filter = { area: "all", certs: new Set(CERTS) };
+let chapter = "all";
+let query = "";
+let lmap = null;
 const t = (k) => T[lang][k];
-const L_ = (o) => o[lang];
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const L_ = (o) => (o && typeof o === "object" && !Array.isArray(o) ? o[lang] : o);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const placeOf = (s) => PLACES.find((p) => p.id === s.place);
+const badge = (c) => `<span class="badge ${c}">${CERT[c][lang]}</span>`;
+const sid = (n) => String(n).padStart(2, "0");
 
-/* URL（#ページ?条件）で画面と絞り込みを決める */
-function parseHash() {
-  const raw = location.hash.replace(/^#/, "") || "top";
+function route() {
+  const raw = location.hash.replace(/^#/, "");
   const [page, q] = raw.split("?");
-  const params = new URLSearchParams(q || "");
-  return { page, params };
+  return { page: page || "top", params: new URLSearchParams(q || "") };
 }
-function workHash() {
-  const p = new URLSearchParams();
-  if (filter.area !== "all") p.set("area", filter.area);
-  if (filter.certs.size !== CERTS.length) p.set("c", [...filter.certs].join(","));
-  const s = p.toString();
-  return "#work" + (s ? "?" + s : "");
-}
+function link(h) { return h + (lang === "en" ? (h.includes("?") ? "&" : "?") + "lang=en" : ""); }
 
 function render() {
-  const { page, params } = parseHash();
-  lang = params.get("lang") === "en" || (sessionStorageGet("lang") === "en" && params.get("lang") !== "ja") ? "en" : "ja";
+  const { page, params } = route();
+  lang = params.get("lang") === "en" ? "en" : "ja";
+  chapter = params.get("ch") || "all";
   document.documentElement.lang = lang;
   document.getElementById("protoNote").textContent = t("proto");
-  document.getElementById("baseLabel").textContent = lang === "ja" ? "地図の種類" : "Map style";
-  document.getElementById("baseSel").innerHTML = Object.entries(BASES).map(([k, v]) => `<option value="${k}"${k === base ? " selected" : ""}>${v[lang]}</option>`).join("");
-  document.getElementById("toggleMapFail").textContent = mapFail ? t("mapFailOff") : t("mapFailOn");
-  document.getElementById("langLink").textContent = t("langTo");
+  document.getElementById("protoNote2").textContent = t("proto2");
   document.getElementById("unofficial").textContent = t("unofficial");
+  document.getElementById("logo").href = link("#top");
+  const p2 = new URLSearchParams(params); p2.set("lang", lang === "ja" ? "en" : "ja");
+  document.getElementById("nav").innerHTML = `
+    <a href="${link("#top")}" class="${page === "top" || page.startsWith("scene-") ? "on" : ""}">${t("scenes")}</a>
+    <a href="${link("#map")}" class="${page === "map" ? "on" : ""}">${t("map")}</a>
+    <a href="${link("#manners")}" class="${page === "manners" ? "on" : ""}">${t("manners")}</a>
+    <a class="lang" href="#${page}?${p2}">${t("langTo")}</a>`;
   renderFooter();
-  if (map) { map.remove(); map = null; markers = {}; }
+  if (lmap) { lmap.remove(); lmap = null; }
   const app = document.getElementById("app");
-  if (page === "work") {
-    filter.area = params.get("area") || "all";
-    const c = params.get("c");
-    filter.certs = new Set(c ? c.split(",").filter((x) => CERTS.includes(x)) : CERTS);
-    app.innerHTML = workPage();
-    bindWork();
-  } else if (page.startsWith("place-")) {
-    const p = PLACES.find((x) => x.id === page.slice(6));
-    app.innerHTML = p ? placePage(p) : topPage();
-    bindPlace();
-  } else if (page === "manners") app.innerHTML = mannersPage();
+  if (page.startsWith("scene-")) {
+    const s = SCENES.find((x) => x.id === page.slice(6));
+    if (s) { app.innerHTML = scenePage(s); afterScene(s); } else { app.innerHTML = topPage(); afterTop(); }
+  } else if (page === "map") { app.innerHTML = mapPage(); afterMap(); }
+  else if (page === "manners") app.innerHTML = mannersPage();
   else if (page === "contact") app.innerHTML = contactPage();
-  else app.innerHTML = topPage();
+  else { app.innerHTML = topPage(); afterTop(); }
   window.scrollTo(0, 0);
 }
-function sessionStorageGet(k) { try { return sessionStorage.getItem(k); } catch { return null; } }
-function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch { /* 使えなくても動く */ } }
-
 function renderFooter() {
-  document.getElementById("footer").innerHTML = `<div>${t("footerUnofficial")}</div>
-  <nav><a href="#manners">${t("manners")}</a><a href="#about" onclick="return false">${t("about")}</a><a href="#contact">${t("contact")}</a></nav>
-  <div>${lang === "ja" ? "地図：" : "Map: "}${BASES[base][lang]}</div>`;
+  const keys = [...new Set([HERO_PHOTO, ...SCENES.map((s) => s.photo)].filter(Boolean))];
+  const used = keys.map((k) => PHOTOS[k]).filter(Boolean);
+  document.getElementById("footer").innerHTML = `<div>${t("footer1")}</div>
+    <nav><a href="${link("#manners")}">${t("manners")}</a><a href="${link("#contact")}">${t("contact")}</a><a href="#top" onclick="return false">${t("about2")}</a></nav>
+    <div>${t("mapAttr")}</div>
+    <div class="credits">${t("photoBy")}: ${used.map((p) => `${esc(p.title)} — ${esc(p.creator || p.source)} (${esc(p.license)}, <a href="${esc(p.page)}" target="_blank" rel="noopener noreferrer">${esc(p.source)}</a>)`).join(" ／ ")}</div>`;
 }
-function badge(c) { return `<span class="badge ${c}">${L_(CERT_LABEL[c])}</span>`; }
 
-/* ===== トップ ===== */
+/* ===== トップ＝作品の扉と場面の目次 ===== */
+function matches(s) {
+  if (chapter !== "all" && s.chapter !== chapter) return false;
+  if (!query) return true;
+  const p = placeOf(s);
+  const hay = [s.title.ja, s.title.en, p.name.ja, p.name.en, p.area.ja, p.area.en, s.keywords || ""].join(" ").toLowerCase();
+  return query.toLowerCase().split(/\s+/).every((w) => hay.includes(w));
+}
+function card(s) {
+  const p = placeOf(s);
+  const ph = s.photo && PHOTOS[s.photo]
+    ? `<img src="${PHOTOS[s.photo].file}" alt="${esc(L_(p.name))}" loading="lazy">`
+    : `<div class="noimg"><span class="big">${sid(s.no)}</span><small>${esc(L_(placeOf(s).area))} ／ ${t("noPhoto")}</small></div>`;
+  return `<a class="card" href="${link("#scene-" + s.id)}">
+    <div class="ph">${ph}<span class="scn">${t("scene")} ${sid(s.no)}</span></div>
+    <div class="body">
+      <div class="title">${esc(L_(s.title))}</div>
+      <div class="where">${esc(L_(p.name))}・${esc(L_(p.area))}</div>
+      <div class="foot">${badge(p.cert)}<span class="go">${t("see")}</span></div>
+    </div></a>`;
+}
 function topPage() {
-  const c = { official: 0, press: 0, fan: 0 };
-  PLACES.forEach((p) => c[p.cert]++);
-  return `<section class="hero"><div class="wrap">
-    <h1>${t("heroTitle")}</h1><p>${t("heroText")}</p>
-    <a class="btn" href="#manners">${t("firstTime")}</a></div></section>
-  <div class="wrap page">
-    <h2>${t("works")}</h2>
-    <div class="chips" role="group">${[t("all"), ...t("kinds")].map((k, i) => `<button class="chip" type="button" aria-pressed="${i === 0}">${k}</button>`).join("")}</div>
-    <div style="margin-top:14px;max-width:560px">
-      <a class="work-card" href="#work">
-        <span class="t">${t("workTitle")}</span>
-        <span class="meta">${t("workKind")}</span>
-        <span>${t("mainSet")}</span>
-        <span class="counts"><b>${PLACES.length} ${t("places")}</b>${CERTS.map((x) => `<span class="badge ${x}">${L_(CERT_LABEL[x])} ${c[x]}</span>`).join("")}</span>
-      </a></div>
-    <p class="small">${t("more")}</p></div>`;
+  const hero = PHOTOS[HERO_PHOTO];
+  const areas = new Set(PLACES.map((p) => p.area.ja)).size;
+  return `<section class="hero">
+    ${hero ? `<img src="${hero.file}" alt="">` : ""}
+    <div class="wrap">
+      <div class="eyebrow">${t("eyebrow")}</div>
+      <h1>${t("title")}</h1>
+      <p>${t("heroLead")}</p>
+      <div class="stats"><span><b>${SCENES.length}</b>${t("nScenes")}</span><span><b>${PLACES.length}</b>${t("nPlaces")}</span><span><b>${areas}</b>${t("nAreas")}</span></div>
+    </div>
+    ${hero ? `<span class="credit">${t("photoBy")}: ${esc(hero.creator || hero.source)} (${esc(hero.license)})</span>` : ""}
+  </section>
+  <div class="chapters"><div class="wrap" id="chTabs" role="group">
+    ${[{ id: "all", ja: t("all"), en: t("all") }, ...CHAPTERS].map((c) => `<button type="button" data-ch="${c.id}" aria-pressed="${chapter === c.id}">${esc(L_(c))}</button>`).join("")}
+  </div></div>
+  <div class="wrap">
+    <div class="tools">
+      <label class="search"><span aria-hidden="true">🔍</span><input id="q" type="search" placeholder="${t("search")}" value="${esc(query)}" aria-label="${t("search")}"></label>
+      <a class="pill" href="${link("#map")}">🗺 ${t("showMap")}</a>
+    </div>
+    <p class="manner-note">${t("beforeVisit")} <a href="${link("#manners")}">${t("mannerLink")}</a>${t("mannerTail")}</p>
+    <div id="list"></div>
+  </div>`;
+}
+function listHtml() {
+  let h = "", total = 0;
+  CHAPTERS.forEach((c, i) => {
+    const ss = SCENES.filter((s) => s.chapter === c.id && matches(s));
+    if (!ss.length) return;
+    total += ss.length;
+    h += `<div class="chapter-h"><span class="no">${t("chapter")} ${i + 1}</span><h2>${esc(L_(c))}</h2><span class="d">${esc(L_(c.desc))}</span></div>
+      <div class="grid">${ss.map(card).join("")}</div>`;
+  });
+  return total ? h : `<div class="empty">${t("noMatch")}</div>`;
+}
+function afterTop() {
+  const list = document.getElementById("list");
+  list.innerHTML = listHtml();
+  document.getElementById("chTabs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-ch]"); if (!b) return;
+    chapter = b.dataset.ch;
+    history.replaceState(null, "", link(chapter === "all" ? "#top" : "#top?ch=" + chapter));
+    document.querySelectorAll("#chTabs button").forEach((x) => x.setAttribute("aria-pressed", x.dataset.ch === chapter));
+    list.innerHTML = listHtml();
+  });
+  document.getElementById("q").addEventListener("input", (e) => { query = e.target.value.trim(); list.innerHTML = listHtml(); });
 }
 
-/* ===== 作品ページ ===== */
-function visible() {
-  return PLACES.filter((p) => (filter.area === "all" || p.area === filter.area) && filter.certs.has(p.cert));
+/* ===== 場面ページ ===== */
+function scenePage(s) {
+  const p = placeOf(s);
+  const i = SCENES.indexOf(s);
+  const prev = SCENES[i - 1], next = SCENES[i + 1];
+  const ch = CHAPTERS.find((c) => c.id === s.chapter);
+  const ph = s.photo && PHOTOS[s.photo];
+  const sceneFrame = s.media === "embed"
+    ? `<figure class="frame"><div class="lbl">${t("theScene")}</div><div class="embed" id="embedBox"><button type="button" id="playBtn">${t("play")}</button><small>${t("embedNote")}</small></div></figure>`
+    : `<figure class="frame quote"><div class="lbl">${t("theScene")}</div><div class="box"><span class="tag">${t("quote")}</span>${t("quotePh")}</div><figcaption>${t("copyright")}</figcaption></figure>`;
+  const todayFrame = `<figure class="frame"><div class="lbl">${t("today")}</div><div class="box">${ph ? `<img src="${ph.file}" alt="${esc(L_(p.name))}">` : `<div class="none">${t("noToday")}</div>`}</div>
+    ${ph ? `<figcaption>${t("photoBy")}: ${esc(ph.creator || ph.source)}（${esc(ph.license)}・<a href="${esc(ph.page)}" target="_blank" rel="noopener noreferrer">${esc(ph.source)} ↗</a>）</figcaption>` : ""}</figure>`;
+  const same = SCENES.filter((x) => x.place === s.place && x !== s);
+  return `<section class="scene-head"><div class="wrap">
+      <div class="crumb"><a href="${link("#top")}">${t("title")}</a> › <a href="${link("#top?ch=" + s.chapter)}">${esc(L_(ch))}</a></div>
+      <div class="eyebrow" style="margin-top:10px">${t("scene")} ${sid(s.no)} ／ ${esc(L_(ch))}</div>
+      <h1>${esc(L_(s.title))}</h1>
+      <div class="sub"><span>📍 ${esc(L_(p.name))}・${esc(L_(p.area))}</span>${badge(p.cert)}</div>
+    </div></section>
+  <div class="wrap">
+    <div class="compare">${sceneFrame}${todayFrame}</div>
+    <div class="layout">
+      <div>
+        <h2 class="sec-h" style="margin-top:0">${t("about")}</h2>
+        <div class="prose"><p>${esc(L_(s.desc))}</p></div>
+        <h2 class="sec-h">${t("sources")}</h2>
+        <p class="small">${badge(p.cert)} ${CERT[p.cert].long[lang]}</p>
+        <ul class="src">${p.sources.map((x) => `<li><a href="#" onclick="return false">${esc(L_(x))} ↗</a>（2026-11-30 ${t("checked")}）</li>`).join("")}</ul>
+        ${same.length ? `<h2 class="sec-h">${t("sameplace")}</h2><div class="grid">${same.map(card).join("")}</div>` : ""}
+        <nav class="next">
+          ${prev ? `<a href="${link("#scene-" + prev.id)}"><small>← ${t("prev")} ／ ${t("scene")} ${sid(prev.no)}</small><b>${esc(L_(prev.title))}</b></a>` : "<span></span>"}
+          ${next ? `<a class="n" href="${link("#scene-" + next.id)}"><small>${t("next")} ／ ${t("scene")} ${sid(next.no)} →</small><b>${esc(L_(next.title))}</b></a>` : "<span></span>"}
+        </nav>
+        <p class="small"><a href="${link("#top")}">← ${t("allScenes")}</a>　<a href="${link("#contact")}">${t("report")}</a></p>
+      </div>
+      <aside class="place-card">
+        <div class="mini" id="mini"></div>
+        <div class="in">
+          <div class="small">${t("place")}</div>
+          <h3>${esc(L_(p.name))}</h3>
+          <dl class="kv"><dt>${t("address")}</dt><dd>${esc(L_(p.address))}</dd><dt>${t("stand")}</dt><dd>${esc(L_(p.stand))}</dd></dl>
+          <section class="cautions"><h2>${t("cautions")}</h2><ul>${L_(p.cautions).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>
+          <a class="btn primary" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">${t("route")} ↗</a>
+          <a class="btn" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${p.lat},${p.lng}">${t("sv")} ↗</a>
+        </div>
+      </aside>
+    </div>
+  </div>`;
 }
-function workPage() {
-  return `<div class="wrap page">
-  <div class="crumb"><a href="#top">${t("top")}</a> › ${t("workTitle")}</div>
-  <h1>${t("workTitle")}</h1>
-  <div class="meta">${t("workKind")} ／ <a href="#work" onclick="return false">${t("official")} ↗</a></div>
-  <p class="lead small">${t("summary")}</p>
-  <div class="notice"><b>⚠ ${t("beforeVisit")}</b>${t("beforeVisitText")} <a href="#manners">${t("manners")}</a></div>
-  <div class="work-grid">
-    <div>${mapFail ? `<div class="map-err" role="status">${t("mapFail")}</div>` : `<div id="map" role="region" aria-label="map"></div>`}</div>
-    <section class="list" id="list" aria-label="${t("list")}">
-      <h2 style="margin-top:0">${t("list")}</h2>
-      <div class="filter-label">${t("area")}</div>
-      <div class="chips" id="areaChips">${[{ id: "all", ja: "すべて", en: "All" }, ...AREAS].map((a) => {
-        const cnt = a.id === "all" ? PLACES.length : PLACES.filter((p) => p.area === a.id).length;
-        return `<button class="chip" type="button" data-area="${a.id}" aria-pressed="${filter.area === a.id}">${L_(a)} ${cnt}</button>`;
-      }).join("")}</div>
-      <div class="filter-label">${t("cert")}</div>
-      <div class="chips" id="certChips">${CERTS.map((c) => `<button class="chip" type="button" data-cert="${c}" aria-pressed="${filter.certs.has(c)}">${{ official: "◆", press: "●", fan: "▲" }[c]} ${L_(CERT_LABEL[c])}</button>`).join("")}</div>
-      <div id="rows"></div>
-    </section>
-  </div></div>`;
-}
-function rowsHtml() {
-  const v = visible();
-  let h = `<p class="count" role="status">${t("showing")(v.length, PLACES.length)} ／ <a href="#about" onclick="return false">${t("whatCert")}</a></p>`;
-  if (!v.length) return h + `<div class="empty">${t("noMatch")}<br><button class="btn" type="button" id="clearF" style="margin-top:8px">${t("clear")}</button></div>`;
-  for (const a of AREAS) {
-    const ps = v.filter((p) => p.area === a.id);
-    if (!ps.length) continue;
-    h += `<div class="area-h">${L_(a)}（${ps.length}）</div>`;
-    h += ps.map((p) => `<div class="row${selected === p.id ? " sel" : ""}" id="row-${p.id}">
-      <span class="num">${p.no}</span>
-      <div style="min-width:0"><a class="name" href="#place-${p.id}">${esc(L_(p.name))}</a>
-        <div class="scene">${t("film")}${L_(p.scene)}</div>${badge(p.cert)}</div>
-      <button class="mapbtn" type="button" data-show="${p.id}">${t("showOnMap")}</button></div>`).join("");
-  }
-  return h;
-}
-function pinIcon(p) {
-  return L.divIcon({ className: "", html: `<div class="pin ${p.cert === "fan" ? "fan" : ""}${selected === p.id ? " sel" : ""}"><span>${p.no}</span></div>`, iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -28] });
-}
-function popupHtml(p) {
-  return `<div class="pop"><b>${p.no}. ${esc(L_(p.name))}</b>${badge(p.cert)}<div><a href="#place-${p.id}">${t("details")} ›</a></div></div>`;
-}
-function drawMap() {
-  if (mapFail || typeof L === "undefined") return;
-  if (!map) {
-    map = L.map("map", { scrollWheelZoom: true, maxZoom: 18 });
-    const bl = baseLayer().addTo(map);
-    // Leaflet は地図の位置が決まってから層を載せるので、載ったときに地名の設定をする
-    if (bl.getMaplibreMap) bl.on("add", () => hookLabels(bl.getMaplibreMap()));
-  }
-  if (cluster) map.removeLayer(cluster);
-  cluster = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 45,
-    iconCreateFunction: (c) => L.divIcon({ className: "marker-cluster", html: `<div>${c.getChildCount()}</div>`, iconSize: [40, 40] }) });
-  markers = {};
-  const v = visible();
-  for (const p of v) {
-    const m = L.marker([p.lat, p.lng], { icon: pinIcon(p), title: L_(p.name), alt: L_(p.name) });
-    m.bindPopup(popupHtml(p));
-    m.on("click", () => select(p.id, "pin"));
-    markers[p.id] = m;
-    cluster.addLayer(m);
-  }
-  map.addLayer(cluster);
-  if (v.length) map.fitBounds(L.latLngBounds(v.map((p) => [p.lat, p.lng])), { padding: [30, 30], maxZoom: 15 });
-  else map.setView([36.0, 138.5], 6);
-}
-function select(id, from) {
-  const prev = selected;
-  selected = id;
-  for (const pid of [prev, id]) {
-    if (!pid) continue;
-    const row = document.getElementById("row-" + pid);
-    if (row) row.classList.toggle("sel", pid === id);
-    const p = PLACES.find((x) => x.id === pid);
-    if (markers[pid]) markers[pid].setIcon(pinIcon(p));
-  }
-  // PC では一覧の行を見える位置へ。スマホでは一覧を動かさない（地図から一覧が見えないため）
-  if (from === "pin" && window.matchMedia("(min-width: 900px)").matches) {
-    const row = document.getElementById("row-" + id);
-    const list = document.getElementById("list");
-    if (row && list) list.scrollTo({ top: row.offsetTop - list.offsetTop - 80, behavior: "smooth" });
-  }
-}
-function showOnMap(id) {
-  const p = PLACES.find((x) => x.id === id);
-  select(id, "list");
-  if (!map) { // 地図が出ていないときは場所ページへ
-    location.hash = "#place-" + id;
-    return;
-  }
-  document.getElementById("map").scrollIntoView({ block: "start" });
-  const m = markers[id];
-  cluster.zoomToShowLayer(m, () => { map.setView([p.lat, p.lng], 16); m.openPopup(); });
-}
-function bindWork() {
-  const rows = document.getElementById("rows");
-  const refresh = () => {
-    history.replaceState(null, "", workHash() + (lang === "en" ? (workHash().includes("?") ? "&" : "?") + "lang=en" : ""));
-    rows.innerHTML = rowsHtml();
-    document.querySelectorAll("#areaChips .chip").forEach((b) => b.setAttribute("aria-pressed", b.dataset.area === filter.area));
-    document.querySelectorAll("#certChips .chip").forEach((b) => b.setAttribute("aria-pressed", filter.certs.has(b.dataset.cert)));
-    drawMap();
-  };
-  document.getElementById("areaChips").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-area]"); if (!b) return;
-    filter.area = b.dataset.area; refresh();
+function baseLayer() {
+  const layer = L.maplibreGL({ style: "https://tiles.openfreemap.org/styles/liberty", attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>' });
+  layer.on("add", () => {
+    const ml = layer.getMaplibreMap();
+    ml.on("styledata", () => {
+      for (const ly of ml.getStyle().layers) {
+        if (ly.type === "symbol" && ml.getLayoutProperty(ly.id, "text-field")) {
+          try { ml.setLayoutProperty(ly.id, "text-field", ["coalesce", ["get", "name:" + lang], ["get", "name"]]); } catch { /* 文字の無い層 */ }
+        }
+      }
+    });
   });
-  document.getElementById("certChips").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-cert]"); if (!b) return;
-    const c = b.dataset.cert;
-    filter.certs.has(c) ? filter.certs.delete(c) : filter.certs.add(c);
-    if (!filter.certs.size) filter.certs = new Set(CERTS); // 全部外したら全部選ぶに戻す
-    refresh();
-  });
-  rows.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-show]");
-    if (b) showOnMap(b.dataset.show);
-    if (e.target.id === "clearF") { filter.area = "all"; filter.certs = new Set(CERTS); refresh(); }
-  });
-  rows.innerHTML = rowsHtml();
-  drawMap();
+  return layer;
 }
-
-/* ===== 場所ページ ===== */
-function placePage(p) {
-  const i = PLACES.indexOf(p);
-  const prev = PLACES[i - 1], next = PLACES[i + 1];
-  const area = AREAS.find((a) => a.id === p.area);
-  const lq = lang === "en" ? "?lang=en" : "";
-  let media = "";
-  if (p.media === "quote") {
-    media = `<div class="compare ${p.own ? "two" : ""}">
-      <figure class="quote"><span class="qlabel">${t("quote")}</span><div class="ph">${t("quotePh").replace("\n", "<br>")}</div><figcaption>${t("copyright")}</figcaption></figure>
-      ${p.own ? `<figure class="own"><div class="ph">${t("ownPh")}</div><figcaption>${t("shotBy")}</figcaption></figure>` : ""}</div>`;
-  } else if (p.media === "embed") {
-    media = `<div class="compare ${p.own ? "two" : ""}">
-      <div><div class="embed"><div class="ph" id="embedBox"><button class="play" type="button" id="playBtn">${t("play")("1:23")}</button><small>${t("embedNote")}</small></div></div>
-      <div class="small" style="margin-top:4px"><a href="#" onclick="return false">${t("openYT")} ↗</a></div></div>
-      ${p.own ? `<figure class="own"><div class="ph">${t("ownPh")}</div><figcaption>${t("shotBy")}</figcaption></figure>` : ""}</div>`;
-  } else if (p.own) {
-    media = `<div class="compare"><figure class="own"><div class="ph">${t("ownPh")}</div><figcaption>${t("shotBy")}</figcaption></figure></div>`;
-  }
-  return `<div class="wrap page place">
-  <div class="crumb"><a href="#top">${t("top")}</a> › <a href="#work${lq}">${t("workTitle")}</a> › <a href="#work?area=${p.area}${lang === "en" ? "&lang=en" : ""}">${L_(area)}</a> › ${esc(L_(p.name))}</div>
-  <h1>${p.no}. ${esc(L_(p.name))}</h1>
-  <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${L_(area)} ${badge(p.cert)}</div>
-  <h2>${t("sceneAndNow")}</h2>
-  <div class="small">${t("film")}${L_(p.scene)}</div>
-  <p>${t("desc")}</p>
-  ${media}
-  <section class="cautions" style="margin-top:24px"><h2>${t("cautions")}</h2><ul>${t("cautionItems").map((x) => `<li>${x}</li>`).join("")}</ul></section>
-  <h2>${t("access")}</h2>
-  <dl class="kv"><dt>${t("address")}</dt><dd>${t("addressVal")}</dd><dt>${t("stand")}</dt><dd>${t("standVal")}</dd></dl>
-  <a class="btn primary block" style="margin-top:12px" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat.toFixed(5)},${p.lng.toFixed(5)}">${t("route")} ↗</a>
-  <h2>${t("sources")}</h2>
-  <p class="small">${badge(p.cert)} ${L_(CERT_LONG[p.cert])}</p>
-  <ul class="src"><li><a href="#" onclick="return false">${lang === "ja" ? "（仮）出典のページ名" : "(sample) Source page"} ↗</a>（2026-11-30 ${t("checked")}）</li>
-  ${p.cert === "fan" ? `<li><a href="#" onclick="return false">${lang === "ja" ? "（仮）もう1つの出典" : "(sample) Second source"} ↗</a>（2026-11-30 ${t("checked")}）</li>` : ""}</ul>
-  <nav class="pager">${prev ? `<a href="#place-${prev.id}${lq}">‹ ${prev.no}. ${t("prev")}</a>` : "<span></span>"}
-    <a href="#work?area=${p.area}${lang === "en" ? "&lang=en" : ""}">${t("backList")(L_(area))}</a>
-    ${next ? `<a href="#place-${next.id}${lq}">${next.no}. ${t("next")} ›</a>` : "<span></span>"}</nav>
-  <p class="small"><a href="#contact${lq}">${t("report")}</a></p></div>`;
+function pinIcon(label, here) {
+  return L.divIcon({ className: "", html: `<div class="pin${here ? " here" : ""}"><span>${label}</span></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -30] });
 }
-function bindPlace() {
+function afterScene(s) {
   const b = document.getElementById("playBtn");
-  if (b) b.addEventListener("click", () => {
-    document.getElementById("embedBox").innerHTML = `<small>${t("embedLoaded")}</small>`;
-  });
+  if (b) b.addEventListener("click", () => { document.getElementById("embedBox").innerHTML = `<small>${t("embedDone")}</small>`; });
+  if (typeof L === "undefined") return;
+  const p = placeOf(s);
+  lmap = L.map("mini", { zoomControl: false, scrollWheelZoom: false }).setView([p.lat, p.lng], 16);
+  baseLayer().addTo(lmap);
+  L.marker([p.lat, p.lng], { icon: pinIcon(sid(s.no), true), title: L_(p.name) }).addTo(lmap);
+  const m = lmap;
+  requestAnimationFrame(() => setTimeout(() => { if (lmap === m) { m.invalidateSize(); m.setView([p.lat, p.lng], 16); } }, 50));
+}
+
+/* ===== 地図ページ ===== */
+function mapPage() {
+  return `<div class="wrap"><h1 class="sec-h" style="font-size:28px;margin-top:24px">${t("mapTitle")}</h1><p class="small">${t("mapLead")}</p><div id="bigmap"></div></div>`;
+}
+function afterMap() {
+  if (typeof L === "undefined") return;
+  lmap = L.map("bigmap");
+  baseLayer().addTo(lmap);
+  const pts = [];
+  for (const p of PLACES) {
+    const ss = SCENES.filter((s) => s.place === p.id);
+    if (!ss.length) continue;
+    pts.push([p.lat, p.lng]);
+    L.marker([p.lat, p.lng], { icon: pinIcon(sid(ss[0].no), false), title: L_(p.name) })
+      .bindPopup(`<div class="pop">${ss.map((s) => `<b>${t("scene")} ${sid(s.no)}：${esc(L_(s.title))}</b><a href="${link("#scene-" + s.id)}">${t("see")}</a>`).join("<br>")}<div class="small">${esc(L_(p.name))}</div></div>`)
+      .addTo(lmap);
+  }
+  lmap.fitBounds(pts, { padding: [40, 40] });
 }
 
 /* ===== 文章のページ ===== */
 function mannersPage() {
-  const ja = `<h1>巡礼のマナー</h1><p>舞台の多くは、人が暮らし、働いている場所です。</p>
+  return `<div class="wrap text-page">${lang === "ja" ? `<h1>巡礼のマナー</h1><p>舞台の多くは、人が暮らし、働いている場所です。</p>
   <h2>住宅地で</h2><ul><li>私道・敷地・駐車場に入らない</li><li>住民や家・車のナンバーを撮らない</li><li>階段・歩道・道をふさいで撮らない。長く居座らない</li><li>早朝・夜は声を小さく</li></ul>
   <h2>神社・お寺で</h2><ul><li>撮影が禁じられた所では撮らない</li><li>参拝の人を優先する</li></ul>
-  <h2>駅・道路で</h2><ul><li>線路や車道に出て撮らない</li><li>ホームでは他の人の通行をふさがない</li></ul>
-  <h2>お店で</h2><ul><li>撮影は店の人に聞いてから</li></ul>
-  <h2>ごみ・騒音</h2><ul><li>ごみは持ち帰る（日本は街なかのごみ箱が少ない）</li></ul>`;
-  const en = `<h1>Pilgrimage etiquette</h1><p>Most settings are places where people live and work.</p>
+  <h2>駅・道路で</h2><ul><li>線路や車道に出て撮らない</li></ul>
+  <h2>図書館・お店で</h2><ul><li>撮影は職員・店の人に聞いてから</li></ul>
+  <h2>ごみ</h2><ul><li>ごみは持ち帰る（日本は街なかのごみ箱が少ない）</li></ul>` : `<h1>Pilgrimage etiquette</h1><p>Most settings are places where people live and work.</p>
   <h2>In residential areas</h2><ul><li>Do not enter private roads, yards or parking lots</li><li>Do not photograph residents, houses or license plates</li><li>Do not block stairs, sidewalks or roads. Do not linger</li><li>Keep your voice down early in the morning and at night</li></ul>
   <h2>At shrines and temples</h2><ul><li>Do not take photos where it is prohibited</li><li>Give way to worshippers</li></ul>
-  <h2>At stations and on roads</h2><ul><li>Never step onto tracks or into traffic for a photo</li><li>Do not block others on the platform</li></ul>
-  <h2>In shops</h2><ul><li>Ask the staff before taking photos</li></ul>
-  <h2>Trash and noise</h2><ul><li>Take your trash with you (public bins are rare in Japan)</li></ul>`;
-  return `<div class="wrap page text-page"><div class="crumb"><a href="#top">${t("top")}</a> › ${t("manners")}</div>${lang === "ja" ? ja : en}</div>`;
+  <h2>At stations and on roads</h2><ul><li>Never step onto tracks or into traffic for a photo</li></ul>
+  <h2>In libraries and shops</h2><ul><li>Ask the staff before taking photos</li></ul>
+  <h2>Trash</h2><ul><li>Take your trash with you (public bins are rare in Japan)</li></ul>`}</div>`;
 }
 function contactPage() {
-  const ja = `<h1>連絡・削除の求め</h1>
-  <h2>権利者・場所の持ち主の方へ</h2><p>画像や場所の掲載をやめてほしいときは、下の連絡先に「ページの URL」と「どれを」を書いてお送りください。<b>理由をうかがう前に、72 時間以内に公開から外します。</b></p>
-  <h2>情報の誤り</h2><p>場所の間違い・閉店・立入禁止になった等もお知らせください。</p>
-  <div class="notice"><b>連絡先</b>（専用のメールアドレス・フォーム：オーナーが決める）</div>
-  <h2>外したもの</h2><p class="small">外した日と項目を記録しています。まだありません。</p>`;
-  const en = `<h1>Contact / removal requests</h1>
-  <h2>For rights holders and property owners</h2><p>If you want an image or place removed, send us the page URL and what to remove. <b>We take it down within 72 hours, before asking for reasons.</b></p>
-  <h2>Corrections</h2><p>Please also tell us about wrong locations, closed shops, or places that became off-limits.</p>
-  <div class="notice"><b>Contact</b>(dedicated email or form: to be decided)</div>
-  <h2>Removed items</h2><p class="small">We keep a record of what was removed and when. Nothing yet.</p>`;
-  return `<div class="wrap page text-page"><div class="crumb"><a href="#top">${t("top")}</a> › ${t("contact")}</div>${lang === "ja" ? ja : en}</div>`;
+  return `<div class="wrap text-page">${lang === "ja" ? `<h1>連絡・削除の求め</h1><p>画像や場所の掲載をやめてほしいときは、ページの URL と「どれを」を書いてお送りください。<b>理由をうかがう前に、72 時間以内に公開から外します。</b></p><p class="small">連絡先：（専用のメールアドレス・フォーム。オーナーが決める）</p>` : `<h1>Contact / removal requests</h1><p>Send us the page URL and what to remove. <b>We take it down within 72 hours, before asking for reasons.</b></p><p class="small">Contact: (dedicated email or form, to be decided)</p>`}</div>`;
 }
 
-/* ===== 共通の操作 ===== */
-document.getElementById("langLink").addEventListener("click", (e) => {
-  e.preventDefault();
-  const next = lang === "ja" ? "en" : "ja";
-  sessionStorageSet("lang", next);
-  const { page, params } = parseHash();
-  params.set("lang", next);
-  location.hash = "#" + page + "?" + params.toString();
-});
-document.getElementById("baseSel").addEventListener("change", (e) => {
-  base = e.target.value; sessionStorageSet("base", base); renderFooter();
-  if (map) { map.remove(); map = null; markers = {}; drawMap(); }
-});
-document.getElementById("toggleMapFail").addEventListener("click", () => { mapFail = !mapFail; render(); });
-document.addEventListener("click", (e) => { // 言葉を保ったままページを移る
-  const a = e.target.closest("a[href^='#']");
-  if (!a || lang !== "en" || a.id === "langLink" || a.closest(".leaflet-container")) return; // 地図の中のボタン（×など）は対象外
-  const h = a.getAttribute("href");
-  if (h === "#" || h.includes("lang=")) return;
-  e.preventDefault();
-  location.hash = h + (h.includes("?") ? "&" : "?") + "lang=en";
-});
 window.addEventListener("hashchange", render);
 render();
 </script>
