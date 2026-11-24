@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
 <style>
 /* 方向：夕暮れの空（藍）と組紐の朱。紙のような明るい地に、地図と一覧を主役に置く */
 :root {
@@ -41,6 +42,7 @@ button { font: inherit; cursor: pointer; }
 /* 上部 */
 .proto { background: var(--ink); color: #fff; font-size: 12px; padding: 4px 0; }
 .proto .wrap { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.proto select { background: #fff; color: #1d2540; border-radius: 4px; }
 .proto button { background: none; border: 1px solid #fff8; color: #fff; border-radius: 4px; font-size: 12px; padding: 0 8px; }
 header.site { background: var(--surface); border-bottom: 1px solid var(--line); }
 header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
@@ -152,7 +154,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0; }
 </style>
 </head>
 <body>
-<div class="proto"><div class="wrap"><span id="protoNote"></span><button id="toggleMapFail" type="button"></button></div></div>
+<div class="proto"><div class="wrap"><span id="protoNote"></span><span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label for="baseSel" id="baseLabel"></label><select id="baseSel" style="font-size:12px"></select><button id="toggleMapFail" type="button"></button></span></div></div>
 <header class="site"><div class="wrap"><a class="logo" href="#top">Scene<span>Trail</span></a><a class="lang" id="langLink" href="#"></a></div></header>
 <div class="unofficial"><div class="wrap" id="unofficial"></div></div>
 <main id="app"></main>
@@ -160,6 +162,8 @@ footer nav { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0; }
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
 <script>
 "use strict";
 /* ===== 仮のデータ（場所・説明はすべて試作用。実在の情報ではない） ===== */
@@ -282,6 +286,34 @@ const T = {
   },
 };
 
+/* ===== 地図の種類（見比べ用） ===== */
+const OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors';
+const BASES = {
+  osm: { ja: "OpenStreetMap 標準", en: "OpenStreetMap Standard", raster: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr: OSM_ATTR, maxZoom: 19 },
+  ofm_liberty: { ja: "OpenFreeMap Liberty（OSM のデータ）", en: "OpenFreeMap Liberty (OSM data)", style: "https://tiles.openfreemap.org/styles/liberty" },
+  ofm_positron: { ja: "OpenFreeMap Positron（OSM のデータ）", en: "OpenFreeMap Positron (OSM data)", style: "https://tiles.openfreemap.org/styles/positron" },
+  gsi: { ja: "国土地理院 淡色地図", en: "GSI pale map", raster: "https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", attr: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener noreferrer">国土地理院</a>', maxZoom: 18 },
+};
+const OFM_ATTR = '<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> ' + OSM_ATTR;
+let base = (() => { try { return sessionStorage.getItem("base") || "ofm_liberty"; } catch { return "ofm_liberty"; } })();
+if (!BASES[base]) base = "ofm_liberty";
+function baseLayer() {
+  const b = BASES[base];
+  if (b.raster) return L.tileLayer(b.raster, { maxZoom: b.maxZoom, attribution: b.attr });
+  return L.maplibreGL({ style: b.style, attribution: OFM_ATTR });
+}
+// 地名の言葉をページの言葉に合わせる（英語のページでは英語の地名）。地図に載せたあとで呼ぶ
+function hookLabels(ml) {
+  ml.on("styledata", () => {
+    const field = ["coalesce", ["get", "name:" + lang], ["get", "name"]];
+    for (const ly of ml.getStyle().layers) {
+      if (ly.type === "symbol" && ml.getLayoutProperty(ly.id, "text-field")) {
+        try { ml.setLayoutProperty(ly.id, "text-field", field); } catch { /* 文字の無い層は飛ばす */ }
+      }
+    }
+  });
+}
+
 /* ===== 状態 ===== */
 let lang = "ja";
 let mapFail = false;
@@ -312,6 +344,8 @@ function render() {
   lang = params.get("lang") === "en" || (sessionStorageGet("lang") === "en" && params.get("lang") !== "ja") ? "en" : "ja";
   document.documentElement.lang = lang;
   document.getElementById("protoNote").textContent = t("proto");
+  document.getElementById("baseLabel").textContent = lang === "ja" ? "地図の種類" : "Map style";
+  document.getElementById("baseSel").innerHTML = Object.entries(BASES).map(([k, v]) => `<option value="${k}"${k === base ? " selected" : ""}>${v[lang]}</option>`).join("");
   document.getElementById("toggleMapFail").textContent = mapFail ? t("mapFailOff") : t("mapFailOn");
   document.getElementById("langLink").textContent = t("langTo");
   document.getElementById("unofficial").textContent = t("unofficial");
@@ -339,7 +373,7 @@ function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch {
 function renderFooter() {
   document.getElementById("footer").innerHTML = `<div>${t("footerUnofficial")}</div>
   <nav><a href="#manners">${t("manners")}</a><a href="#about" onclick="return false">${t("about")}</a><a href="#contact">${t("contact")}</a></nav>
-  <div>${t("gsi")}</div>`;
+  <div>${lang === "ja" ? "地図：" : "Map: "}${BASES[base][lang]}</div>`;
 }
 function badge(c) { return `<span class="badge ${c}">${L_(CERT_LABEL[c])}</span>`; }
 
@@ -414,10 +448,10 @@ function popupHtml(p) {
 function drawMap() {
   if (mapFail || typeof L === "undefined") return;
   if (!map) {
-    map = L.map("map", { scrollWheelZoom: true });
-    L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png", {
-      maxZoom: 18, attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener noreferrer">国土地理院</a>',
-    }).addTo(map);
+    map = L.map("map", { scrollWheelZoom: true, maxZoom: 18 });
+    const bl = baseLayer().addTo(map);
+    // Leaflet は地図の位置が決まってから層を載せるので、載ったときに地名の設定をする
+    if (bl.getMaplibreMap) bl.on("add", () => hookLabels(bl.getMaplibreMap()));
   }
   if (cluster) map.removeLayer(cluster);
   cluster = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 45,
@@ -577,6 +611,10 @@ document.getElementById("langLink").addEventListener("click", (e) => {
   const { page, params } = parseHash();
   params.set("lang", next);
   location.hash = "#" + page + "?" + params.toString();
+});
+document.getElementById("baseSel").addEventListener("change", (e) => {
+  base = e.target.value; sessionStorageSet("base", base); renderFooter();
+  if (map) { map.remove(); map = null; markers = {}; drawMap(); }
 });
 document.getElementById("toggleMapFail").addEventListener("click", () => { mapFail = !mapFail; render(); });
 document.addEventListener("click", (e) => { // 言葉を保ったままページを移る
