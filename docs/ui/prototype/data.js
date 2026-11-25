@@ -455,13 +455,14 @@ const SCENES = [
    "en": "Taki walks home alone through Nishi-Shinjuku at night, the office windows still lit. A quiet Tokyo after his connection with Mitsuha is lost."
   },
   "video": {
-   "id": "k4xGqY5IDBE",
-   "start": null,
+   "id": "3KR8_igDs1Y",
+   "start": 6,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s03.jpg"
  },
  {
   "id": "s04",
@@ -479,13 +480,14 @@ const SCENES = [
    "en": "The footbridge in front of Shinanomachi Station. Taki looks up at the sky with the Docomo Tower behind him, a view the film returns to again and again."
   },
   "video": {
-   "id": "k4xGqY5IDBE",
-   "start": null,
+   "id": "RBBrZ3d2sJE",
+   "start": 31,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s04.jpg"
  },
  {
   "id": "s05",
@@ -576,13 +578,14 @@ const SCENES = [
    "en": "A lake ringed by mountains, said to have inspired the view of Lake Itomori."
   },
   "video": {
-   "id": "k4xGqY5IDBE",
-   "start": null,
+   "id": "3KR8_igDs1Y",
+   "start": 24,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s08.jpg"
  },
  {
   "id": "s09",
@@ -596,16 +599,17 @@ const SCENES = [
   "photo": null,
   "keywords": "階段 神社 ラスト 須賀 四谷",
   "desc": {
-   "ja": "物語の最後、大人になった二人が階段ですれ違い、振り返る場面。赤い手すりのある神社の階段です。",
-   "en": "Near the end, the two, now adults, pass each other on a flight of stairs and turn around. The shrine stairs with red railings."
+   "ja": "物語の最後、大人になった二人が階段ですれ違い、振り返る場面。赤い手すりのある神社の階段です。公式のテレビCMには、制服姿の三葉がこの階段を上る姿も映ります。",
+   "en": "Near the end, the two, now adults, pass each other on a flight of stairs and turn around. The shrine stairs with red railings. An official TV spot also shows Mitsuha in her school uniform climbing these stairs."
   },
   "video": {
-   "id": "k4xGqY5IDBE",
-   "start": null,
+   "id": "mPB0GbEUSNg",
+   "start": 18,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s09.jpg"
  }
 ];

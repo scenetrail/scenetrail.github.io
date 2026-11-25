@@ -221,7 +221,7 @@ const T = {
     scene: "SCENE", chapter: "CHAPTER",
     theScene: "THE SCENE ／ どんな場面か", today: "TODAY ／ 今の様子", quote: "引用",
     quotePh: "ここに場面の画像が1枚入ります（長辺640px以下・手を加えない）", copyright: "『君の名は。』より　©2016「君の名は。」製作委員会",
-    play: "▶ 公式の予告編を見る", playFrom: "▶ 公式の予告編でこの場面を見る（{t} から）",
+    play: "▶ 公式の予告編を見る", playFrom: "▶ 公式の動画でこの場面を見る（{t} から）",
     embedNote: "押すと YouTube（{c}）から読み込みます", openYt: "YouTube で開く",
     noToday: "今の写真はまだありません", photoBy: "写真",
     about: "この場面について", place: "この場面の場所",
@@ -248,7 +248,7 @@ const T = {
     scene: "SCENE", chapter: "CHAPTER",
     theScene: "THE SCENE", today: "TODAY", quote: "Quote",
     quotePh: "One scene image goes here (max 640px, unedited)", copyright: "From \"Your Name.\"　©2016 \"Your Name.\" Production Committee",
-    play: "▶ Watch the official trailer", playFrom: "▶ Watch this scene in the official trailer (from {t})",
+    play: "▶ Watch the official trailer", playFrom: "▶ Watch this scene in an official video (from {t})",
     embedNote: "Tapping loads YouTube ({c})", openYt: "Open on YouTube",
     noToday: "No photo yet", photoBy: "Photo",
     about: "About this scene", place: "Where it is",
@@ -340,7 +340,7 @@ function card(s) {
     <div class="body">
       <div class="title">${esc(L_(s.title))}</div>
       <div class="where">${esc(L_(p.name))}・${esc(L_(p.area))}</div>
-      <div class="foot">${badge(p.cert)}<span class="go">${t("see")}</span></div>
+      <div class="foot"><span class="go">${t("see")}</span></div>
     </div></a>`;
 }
 function topPage() {
@@ -416,15 +416,12 @@ function scenePage(s) {
       <div class="crumb"><a href="${link("#top")}">${t("title")}</a> › <a href="${link("#top?ch=" + s.chapter)}">${esc(L_(ch))}</a></div>
       <div class="eyebrow" style="margin-top:10px">${t("scene")} ${sid(s.no)} ／ ${esc(L_(ch))}</div>
       <h1>${esc(L_(s.title))}</h1>
-      <div class="sub"><span>📍 ${esc(L_(p.name))}・${esc(L_(p.area))}</span>${badge(p.cert)}</div>
+      <div class="sub"><span>📍 ${esc(L_(p.name))}・${esc(L_(p.area))}</span></div>
     </div></section>
   <div class="wrap">
     <div class="compare">${sceneFrame}${todayFrame}</div>
     <div class="layout">
       <div>
-        <h2 class="sec-h" style="margin-top:0">${t("sources")}</h2>
-        <p class="small">${badge(p.cert)} ${CERT[p.cert].long[lang]}</p>
-        <ul class="src">${p.sources.map((x) => `<li><a href="#" onclick="return false">${esc(L_(x))} ↗</a>（2026-11-30 ${t("checked")}）</li>`).join("")}</ul>
         ${same.length ? `<h2 class="sec-h">${t("sameplace")}</h2><div class="grid">${same.map(card).join("")}</div>` : ""}
         <nav class="next">
           ${prev ? `<a href="${link("#scene-" + prev.id)}"><small>← ${t("prev")} ／ ${t("scene")} ${sid(prev.no)}</small><b>${esc(L_(prev.title))}</b></a>` : "<span></span>"}
