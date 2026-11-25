@@ -1,0 +1,38 @@
+{
+ "shinjuku_day": {
+  "file": "img/shinjuku_day.jpg",
+  "title": "Skyscrapers Nishi-Shinjuku - Shinjuku i-land",
+  "creator": "",
+  "license": "CC0 1.0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/3338809/free-photo-image-aerial-view-apartment-building-architecture",
+  "original": "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA2L3drNjEzMTA3ODEtaW1hZ2Uta3A2ZGw0eXUuanBn.jpg"
+ },
+ "shinjuku_night": {
+  "file": "img/shinjuku_night.jpg",
+  "title": "Skyscrapers Nishi-Shinjuku night - Shinjuku",
+  "creator": "",
+  "license": "CC0 1.0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/3338806/free-photo-image-aerial-view-architecture-asphalt",
+  "original": "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA2L3drNjEzMTA4NDYtaW1hZ2Uta3A2ZGxocDQuanBn.jpg"
+ },
+ "shinjuku_skyline": {
+  "file": "img/shinjuku_skyline.jpg",
+  "title": "Shinjuku",
+  "creator": "Vitor Nisida",
+  "license": "PDM 1.0",
+  "source": "flickr",
+  "page": "https://www.flickr.com/photos/24061144@N06/52740251941",
+  "original": "https://live.staticflickr.com/65535/52740251941_07a956a45e_b.jpg"
+ },
+ "nact": {
+  "file": "img/nact.jpg",
+  "title": "Interior National Art Center, Tokyo",
+  "creator": "",
+  "license": "CC0 1.0",
+  "source": "rawpixel",
+  "page": "https://www.rawpixel.com/image/8717901/photo-image-public-domain-interior-glass",
+  "original": "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTExL2xyL3drMzg1MTgyNTYtaW1hZ2UuanBn.jpg"
+ }
+}
