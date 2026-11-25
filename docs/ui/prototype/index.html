@@ -180,6 +180,7 @@ figcaption { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
 .qpin .tag { position: absolute; right: 6px; top: 6px; background: #fff; color: #161b2e; font-size: 9.5px; font-weight: 700; border-radius: 3px; padding: 0 4px; }
 .qpin.noimg img { visibility: hidden; } .qpin.noimg .tag { display: none; }
 .leaflet-marker-icon:hover { z-index: 9999 !important; }
+.qpin.sm { width: 80px; } .qpin.sm img { width: 74px; height: 42px; } .qpin.sm .tag { display: none; }
 .map-cap { font-size: 12px; color: var(--soft, #5b6072); margin: 6px 0 0; }
 .leaflet-popup-content { font-family: var(--f-body); margin: 10px 12px; }
 .pop b { display: block; font-family: var(--f-display); font-size: 15px; line-height: 1.4; }
@@ -475,12 +476,12 @@ function pinIcon(label, here) {
   return L.divIcon({ className: "", html: `<div class="pin${here ? " here" : ""}"><span>${label}</span></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -30] });
 }
 /* 引用の画像があれば、地図の上に小さな絵で出す（押さなくても場面が分かる）。無ければいつものピン */
-function sceneIcon(ss) {
+function sceneIcon(ss, small) {
   const q = ss.find((x) => x.quote);
   if (!q) return pinIcon(sid(ss[0].no), false);
   const more = ss.length > 1 ? `<span class="more">+${ss.length - 1}</span>` : "";
-  return L.divIcon({ className: "", html: `<div class="qpin"><img src="${q.quote}" alt="" onerror="this.closest('.qpin').classList.add('noimg')"><span class="tag">${t("quote")}</span><span class="no">${sid(q.no)}</span>${more}</div>`,
-    iconSize: [112, 66], iconAnchor: [56, 74], popupAnchor: [0, -72] });
+  return L.divIcon({ className: "", html: `<div class="qpin${small ? " sm" : ""}"><img src="${q.quote}" alt="" onerror="this.closest('.qpin').classList.add('noimg')"><span class="tag">${t("quote")}</span><span class="no">${sid(q.no)}</span>${more}</div>`,
+    iconSize: small ? [80, 48] : [112, 66], iconAnchor: small ? [40, 56] : [56, 74], popupAnchor: [0, small ? -54 : -72] });
 }
 function afterScene(s) {
   const b = document.getElementById("playBtn");
@@ -518,7 +519,7 @@ function afterMap() {
   const items = PLACES.map((p) => ({ p, ss: SCENES.filter((s) => s.place === p.id) })).filter((x) => x.ss.length)
     .sort((a, b) => a.ss[0].no - b.ss[0].no);
   const layer = L.layerGroup().addTo(lmap);
-  const W = 120, H = 80;
+  const small = innerWidth < 600, W = small ? 88 : 120, H = small ? 60 : 80;
   function relayout() {
     layer.clearLayers();
     const groups = [];
@@ -530,7 +531,7 @@ function afterMap() {
     for (const g of groups) {
       const lead = g.members[0];
       const ss = g.members.flatMap((m) => m.ss).sort((a, b) => a.no - b.no);
-      const m = L.marker([lead.p.lat, lead.p.lng], { icon: sceneIcon(ss), title: g.members.map((x) => L_(x.p.name)).join("・"), riseOnHover: true }).addTo(layer);
+      const m = L.marker([lead.p.lat, lead.p.lng], { icon: sceneIcon(ss, small), title: g.members.map((x) => L_(x.p.name)).join("・"), riseOnHover: true }).addTo(layer);
       if (g.members.length > 1 && lmap.getZoom() < 17) {
         m.on("click", () => lmap.fitBounds(g.members.map((x) => [x.p.lat, x.p.lng]), { padding: [90, 90], maxZoom: 18 }));
       } else {
@@ -539,7 +540,7 @@ function afterMap() {
     }
   }
   lmap.on("zoomend", relayout);
-  lmap.fitBounds(items.map((x) => [x.p.lat, x.p.lng]), { padding: [60, 60] });
+  lmap.fitBounds(items.map((x) => [x.p.lat, x.p.lng]), { padding: small ? [50, 50] : [60, 60] });
   relayout();
 }
 
