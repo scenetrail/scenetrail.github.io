@@ -6,3 +6,5 @@ secrets/
 __pycache__/
 public/
 .claude/worktrees/
+# 引用の画像（非公開の置き場へのリンク。Public に入れない）
+docs/ui/prototype/quotes

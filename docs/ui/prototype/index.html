@@ -127,7 +127,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid 
 .story small { font-size: 12px; opacity: .85; }
 .story a { color: #fff; }
 .qbox { position: relative; aspect-ratio: 16 / 9; border: 2px solid rgba(255,255,255,.55); border-radius: 6px; background: repeating-linear-gradient(135deg, rgba(255,255,255,.06) 0 12px, rgba(255,255,255,.12) 12px 24px); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; padding: 12px 18px; color: rgba(255,255,255,.85); }
-.qbox .tag { position: absolute; left: 8px; top: 8px; background: #fff; color: var(--ink); font-size: 11px; font-weight: 700; padding: 0 8px; border-radius: 3px; }
+.qbox img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.qbox:has(img) { padding: 0; border-color: #fff; }
+.qbox .tag { z-index: 1;  position: absolute; left: 8px; top: 8px; background: #fff; color: var(--ink); font-size: 11px; font-weight: 700; padding: 0 8px; border-radius: 3px; }
 .qcap { font-size: 12px; opacity: .85; margin-top: -8px; }
 .player { aspect-ratio: 16 / 9; width: 100%; border: 0; border-radius: 8px; background: #000; }
 .compare .frame { display: flex; flex-direction: column; }
@@ -207,7 +209,7 @@ footer .credits { margin-top: 10px; font-size: 11px; color: rgba(255,255,255,.55
 const T = {
   ja: {
     proto: "試作品：場面と場所の対応・説明は確認前の仮のものです",
-    proto2: "写真は自由素材（CC0・パブリックドメイン）。引用の画像の枠は空けてあります（Public のリポジトリに置かないため）",
+    proto2: "写真は自由素材（CC0・パブリックドメイン）。引用の画像は手元の非公開フォルダにあるときだけ出ます（Public のリポジトリに置かないため）",
     unofficial: "非公式のファンサイトです。作品の公式とは関係ありません。",
     scenes: "場面", map: "地図", manners: "マナー", langTo: "EN",
     title: "君の名は。", eyebrow: "Your Name. ／ 2016",
@@ -234,7 +236,7 @@ const T = {
   },
   en: {
     proto: "Prototype: scene–place pairs and descriptions are unverified samples",
-    proto2: "Photos are CC0 / public domain. Quoted scene image frames are left empty (never stored in the public repository)",
+    proto2: "Photos are CC0 / public domain. Quoted scene images appear only from a local private folder (never stored in the public repository)",
     unofficial: "Unofficial fan site. Not affiliated with the official works.",
     scenes: "Scenes", map: "Map", manners: "Etiquette", langTo: "日本語",
     title: "Your Name.", eyebrow: "君の名は。 ／ 2016",
@@ -402,7 +404,7 @@ function scenePage(s) {
   const ytUrl = v ? `https://www.youtube.com/watch?v=${v.id}${v.start ? "&t=" + v.start + "s" : ""}` : "";
   const sceneFrame = `<figure class="frame"><div class="lbl">${t("theScene")}</div><div class="story" id="storyBox">
       <p>${esc(L_(s.desc))}</p>
-      <div class="qbox"><span class="tag">${t("quote")}</span>${t("quotePh")}</div>
+      <div class="qbox">${s.quote ? `<img src="${s.quote}" alt="" onerror="this.remove()">` : ""}<span class="tag">${t("quote")}</span>${t("quotePh")}</div>
       <div class="qcap">${t("copyright")}</div>
       ${v ? `<div class="vid" id="vid"><button type="button" id="playBtn">${vt ? t("playFrom").replace("{t}", vt) : t("play")}</button>
         <small>${t("embedNote").replace("{c}", esc(L_(v.channel)))}・<a href="${ytUrl}" target="_blank" rel="noopener noreferrer">${t("openYt")} ↗</a></small></div>` : ""}

@@ -406,13 +406,14 @@ const SCENES = [
    "en": "Mitsuha, now in Taki's body, looks out over Tokyo for the first time. The towers in the morning light leave the girl from a mountain town speechless."
   },
   "video": {
-   "id": "k4xGqY5IDBE",
-   "start": null,
+   "id": "3KR8_igDs1Y",
+   "start": 23,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s01.jpg"
  },
  {
   "id": "s02",
@@ -526,13 +527,14 @@ const SCENES = [
    "en": "At the library, Taki searches the records of Itomori and learns what happened to the town. The story turns here."
   },
   "video": {
-   "id": "k4xGqY5IDBE",
-   "start": null,
+   "id": "3KR8_igDs1Y",
+   "start": 43,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s06.jpg"
  },
  {
   "id": "s07",
