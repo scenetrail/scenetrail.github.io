@@ -172,9 +172,23 @@ figcaption { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
 .pin { width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--night); border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
 .pin span { transform: rotate(45deg); color: #fff; font: 700 11px var(--f-num); }
 .pin.here { background: var(--cord); }
+.qpin { position: relative; width: 112px; background: #fff; border-radius: 7px; padding: 3px; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+.qpin::after { content: ""; position: absolute; left: 50%; bottom: -8px; margin-left: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: #fff; }
+.qpin img { display: block; width: 106px; height: 60px; object-fit: cover; border-radius: 5px; background: #0e1430; }
+.qpin .no { position: absolute; left: -6px; top: -8px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--night); color: #fff; font: 700 11px/22px var(--f-num); text-align: center; border: 2px solid #fff; }
+.qpin .more { position: absolute; right: 6px; bottom: 6px; background: rgba(0,0,0,.65); color: #fff; font-size: 10px; border-radius: 3px; padding: 0 4px; }
+.qpin .tag { position: absolute; right: 6px; top: 6px; background: #fff; color: #161b2e; font-size: 9.5px; font-weight: 700; border-radius: 3px; padding: 0 4px; }
+.qpin.noimg img { visibility: hidden; } .qpin.noimg .tag { display: none; }
+.leaflet-marker-icon:hover { z-index: 9999 !important; }
+.map-cap { font-size: 12px; color: var(--soft, #5b6072); margin: 6px 0 0; }
 .leaflet-popup-content { font-family: var(--f-body); margin: 10px 12px; }
 .pop b { display: block; font-family: var(--f-display); font-size: 15px; line-height: 1.4; }
 .pop a { color: var(--cord); font-weight: 700; }
+.pop .pq { position: relative; width: 240px; aspect-ratio: 16 / 9; margin: 6px 0 4px; border-radius: 6px; overflow: hidden; background: #0e1430; }
+.pop .pq img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pop .pq .tag { position: absolute; left: 6px; top: 6px; font-size: 10.5px; font-weight: 700; background: #fff; color: #161b2e; border-radius: 3px; padding: 0 5px; }
+.pop .pcap { font-size: 10.5px; color: var(--soft, #5b6072); margin: 2px 0 6px; }
+.pop .pitem + .pitem { margin-top: 10px; padding-top: 10px; border-top: 1px solid #dcd8ce; }
 
 /* 文章のページ */
 .text-page { max-width: 720px; padding-top: 28px; padding-bottom: 40px; }
@@ -460,6 +474,14 @@ function baseLayer() {
 function pinIcon(label, here) {
   return L.divIcon({ className: "", html: `<div class="pin${here ? " here" : ""}"><span>${label}</span></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -30] });
 }
+/* 引用の画像があれば、地図の上に小さな絵で出す（押さなくても場面が分かる）。無ければいつものピン */
+function sceneIcon(ss) {
+  const q = ss.find((x) => x.quote);
+  if (!q) return pinIcon(sid(ss[0].no), false);
+  const more = ss.length > 1 ? `<span class="more">+${ss.length - 1}</span>` : "";
+  return L.divIcon({ className: "", html: `<div class="qpin"><img src="${q.quote}" alt="" onerror="this.closest('.qpin').classList.add('noimg')"><span class="tag">${t("quote")}</span><span class="no">${sid(q.no)}</span>${more}</div>`,
+    iconSize: [112, 66], iconAnchor: [56, 74], popupAnchor: [0, -72] });
+}
 function afterScene(s) {
   const b = document.getElementById("playBtn");
   if (b) b.addEventListener("click", () => {
@@ -483,22 +505,42 @@ function afterScene(s) {
 
 /* ===== 地図ページ ===== */
 function mapPage() {
-  return `<div class="wrap"><h1 class="sec-h" style="font-size:28px;margin-top:24px">${t("mapTitle")}</h1><p class="small">${t("mapLead")}</p><div id="bigmap"></div></div>`;
+  return `<div class="wrap"><h1 class="sec-h" style="font-size:28px;margin-top:24px">${t("mapTitle")}</h1><p class="small">${t("mapLead")}</p><div id="bigmap"></div><p class="map-cap">${t("quote")}：${t("copyright")}</p></div>`;
+}
+/* 絵のピンが重なる所は1枚にまとめて「+N」を出す（押すと寄って分かれる）。寄せ・引きのたびに並べ直す */
+function popupHtml(ss) {
+  return `<div class="pop">${ss.map((s) => `<div class="pitem"><b>${t("scene")} ${sid(s.no)}：${esc(L_(s.title))}</b>${s.quote ? `<a class="pq" href="${link("#scene-" + s.id)}"><img src="${s.quote}" alt="" onerror="this.closest('.pitem').querySelectorAll('.pq,.pcap').forEach((e) => e.remove())"><span class="tag">${t("quote")}</span></a><div class="pcap">${t("copyright")}</div>` : ""}<a href="${link("#scene-" + s.id)}">${t("see")}</a></div>`).join("")}</div>`;
 }
 function afterMap() {
   if (typeof L === "undefined") return;
   lmap = L.map("bigmap");
   baseLayer().addTo(lmap);
-  const pts = [];
-  for (const p of PLACES) {
-    const ss = SCENES.filter((s) => s.place === p.id);
-    if (!ss.length) continue;
-    pts.push([p.lat, p.lng]);
-    L.marker([p.lat, p.lng], { icon: pinIcon(sid(ss[0].no), false), title: L_(p.name) })
-      .bindPopup(`<div class="pop">${ss.map((s) => `<b>${t("scene")} ${sid(s.no)}：${esc(L_(s.title))}</b><a href="${link("#scene-" + s.id)}">${t("see")}</a>`).join("<br>")}<div class="small">${esc(L_(p.name))}</div></div>`)
-      .addTo(lmap);
+  const items = PLACES.map((p) => ({ p, ss: SCENES.filter((s) => s.place === p.id) })).filter((x) => x.ss.length)
+    .sort((a, b) => a.ss[0].no - b.ss[0].no);
+  const layer = L.layerGroup().addTo(lmap);
+  const W = 120, H = 80;
+  function relayout() {
+    layer.clearLayers();
+    const groups = [];
+    for (const it of items) {
+      const pt = lmap.latLngToLayerPoint([it.p.lat, it.p.lng]);
+      const g = groups.find((g) => Math.abs(g.pt.x - pt.x) < W && Math.abs(g.pt.y - pt.y) < H);
+      if (g) g.members.push(it); else groups.push({ pt, members: [it] });
+    }
+    for (const g of groups) {
+      const lead = g.members[0];
+      const ss = g.members.flatMap((m) => m.ss).sort((a, b) => a.no - b.no);
+      const m = L.marker([lead.p.lat, lead.p.lng], { icon: sceneIcon(ss), title: g.members.map((x) => L_(x.p.name)).join("・"), riseOnHover: true }).addTo(layer);
+      if (g.members.length > 1 && lmap.getZoom() < 17) {
+        m.on("click", () => lmap.fitBounds(g.members.map((x) => [x.p.lat, x.p.lng]), { padding: [90, 90], maxZoom: 18 }));
+      } else {
+        m.bindPopup(popupHtml(ss) + `<div class="small">${g.members.map((x) => esc(L_(x.p.name))).join("・")}</div>`, { maxWidth: 270, minWidth: 240 });
+      }
+    }
   }
-  lmap.fitBounds(pts, { padding: [40, 40] });
+  lmap.on("zoomend", relayout);
+  lmap.fitBounds(items.map((x) => [x.p.lat, x.p.lng]), { padding: [60, 60] });
+  relayout();
 }
 
 /* ===== 文章のページ ===== */
