@@ -431,13 +431,14 @@ const SCENES = [
    "en": "The café Taki visits on his day out with Okudera, his senior at work. They sit on top of a striking inverted cone, and the date does not go smoothly."
   },
   "video": {
-   "id": "k4xGqY5IDBE",
-   "start": null,
+   "id": "3KR8_igDs1Y",
+   "start": 20,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s02.jpg"
  },
  {
   "id": "s03",
@@ -555,12 +556,13 @@ const SCENES = [
   },
   "video": {
    "id": "k4xGqY5IDBE",
-   "start": null,
+   "start": 19,
    "channel": {
     "ja": "東宝MOVIEチャンネル",
     "en": "Toho Movie Channel"
    }
-  }
+  },
+  "quote": "quotes/s07.jpg"
  },
  {
   "id": "s08",
